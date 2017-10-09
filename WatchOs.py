@@ -3,16 +3,6 @@ import datetime
 import random
 
 
-class Persona:
-    def __init__(self, identidad, nombre, telefonos, celular, correo, foto):
-        self.identidad = identidad
-        self.nombre = nombre
-        self.telefonos = telefonos
-        self.celular = celular
-        self.correo = correo
-        self.foto = foto
-
-
 def confirma_pin(data):
     with open("config.json", "r") as f:
         config = json.load(fp=f)
@@ -23,162 +13,309 @@ def confirma_pin(data):
         return False
 
 
+class Persona:
+    def __init__(self, identidad, nombre, telefonos, celular, correo, foto):
+        self.identidad = identidad
+        self.nombre = nombre
+        self.telefonos = telefonos
+        self.celular = celular
+        self.correo = correo
+        self.foto = foto
+
+
 class Contactos:
     """
         Maneja, muestra y administra los contactos del sistema.
     """
+
     def __init__(self):
 
         # Carga los contactos del disco.
         with open("contactos.json", "r") as f:
-            self.contact = self.json.load(fp=f)
+            self.temp = json.load(fp=f)
+
+        self.contacts = self.cargar(0, [])
+
+    def cargar(self, i, result):
+        if i >= len(self.temp):
+            return result
+        else:
+            result += [Persona(self.temp[i]["id"], self.temp[i]["nombre"],
+                               self.temp[i]["telefonos"],
+                               self.temp[i]["celular"],
+                               self.temp[i]["correo"],
+                               self.temp[i]["foto"])]
+
+            return self.cargar(i+1, result)
 
     def crear(self, identidad, nombre, telefonos, celular, correo, foto):
         """
-        :param identidad:
-        :param nombre:
-        :param telefonos:
-        :param celular:
-        :param correo:
-        :param foto:
+        :param identidad: int
+        :param nombre: str
+        :param telefonos: array de ints
+        :param celular: int
+        :param correo: str
+        :param foto: str
         :return: bool que indica el éxito de agregar el contacto.
 
         Agrega un usuario a la lista de contactos
         """
-        self.contact["ids"] += [identidad]
-        self.contact["nombres"] += [nombre]
-        self.contact["telefonos"] += [telefonos]
-        self.contact["celular"] += [celular]
-        self.contact["correos"] += [correo]
-        self.contact["fotos"] += [foto]
+        self.contacts += [Persona(identidad, nombre, telefonos, celular, correo, foto)]
+        return True
 
     def eliminar(self, identidad):
-        i = self.contact["ids"].index(identidad)
-        self.contact["ids"][i] = None
-        self.contact["nombres"] = None
-        self.contact["telefonos"] = None
-        self.contact["celular"] = None
-        self.contact["correos"] = None
-        self.contact["fotos"] = None
+        """
+        :param identidad:
 
-        self.sort(["ids", "nombres", "telefonos", "celular", "correos", "fotos"])
+        Elimina el usuario con la identidad correspondiente y vuelve a ordenar la lista para evitar tener espacios
+        vacíos.
+        """
+        se_elimino = self.eliminar_aux(identidad, 0)
+        if se_elimino:
+            self.contacts = self.sort_empty(0, [])
+        return se_elimino
 
-    def sort(self, keys):
-        pass
+    def eliminar_aux(self, identidad, i):
+        if i == len(self.contacts):
+            return False
+        elif self.contacts[i].identidad == identidad:
+            self.contacts[i] = None
+            return True
+        else:
+            return self.eliminar_aux(identidad, i+1)
+
+    def sort_empty(self, i, result):
+        """
+        Sort que se encarga de remover los espacios vacíos una vez se elimina un
+        contacto.
+        """
+        if i >= len(self.contacts):
+            return result
+        elif self.contacts[i] is not None:
+            result += self.contacts[i]
+            return self.sort_empty(i + 1, result)
+        else:
+            return self.sort_empty(i + 1, result)
 
     def ordenar(self, modo):
         """
         :param modo
         :return: result
 
-        General un dict copia de contac, el cual se ordena con Selection Sort según el modo especificado.
+        Genera un lista copia de contactos, el cual se ordena con Selection Sort según el modo especificado.
         """
-        result = self.contact
         if modo == "ID":
-            for i in range(0, result["ids"]):
-                menor = i
-                for j in range(0, result["ids"]+1):
-                    if result["ids"][j] < result["ids"][menor]:
-                        menor = j
-                result["ids"][i], result["ids"][menor] = result["ids"][menor], result["ids"][i]
-                result["nombres"][i], result["nombres"][menor] = result["nombres"][menor], result["nombres"][i]
-                result["telefonos"][i], result["telefonos"][menor] = result["telefonos"][menor], result["telefonos"][i]
-                result["celular"][i], result["celular"][menor] = result["celular"][menor], result["celular"][i]
-                result["correos"][i], result["correos"][menor] = result["correos"][menor], result["correos"][i]
-                result["fotos"][i], result["fotos"][menor] = result["fotos"][menor], result["fotos"][i]
+            self.contacts = self.ordernar_id()
+        elif modo == "Alfabético" or modo == "Alphabetical":
+            self.contacts = self.ordenar_abc()
 
+    def ordenar_id(self):
+        return self.ordenar_id_aux(0, self.contacts, [])
+
+    def ordenar_id_aux(self, i, copia, result):
+        if i == len(copia):
             return result
-        """
-        elif modo == "Alfabetico":
-            for i in range(0, result[modo]):
-                menor = i
-                for j in range(0, result[modo]+1):
-                    if result[modo][j] < result[modo][menor]:
-                        menor = j
-                result[modo][i], result[modo][menor] = result[modo][menor], result[modo][i]
-        """
+        else:
+            j = self.get_index_min(copia, 0, int(copia[0].identidad))
+            result += [self.contacts[j]]
+            return self.ordenar_id_aux(i+1, copia[0:j]+copia[j+1:len(copia)], result)
+
+    def get_index_min(self, temp, i, result):
+        if i == len(temp):
+            return result
+        elif int(temp[i].identidad) < result:
+            return self.get_index_min(temp, i+1, temp[i])
+        else:
+            return self.get_index_min(temp, i+1, result)
+
     def seleccionar(self, identidad):
-        try:
-            i = self.contact["ids"].index(identidad)
-            return [self.contact["ids"][i], self.contact["nombres"][i], self.contact["telefonos"][i],
-                    self.contact["celular"][i], self.contact["correos"][i], self.contact["fotos"[i]]]
-        except IndexError:
+        return self.seleccionar_aux(int(identidad), 0)
+
+    def seleccionar_aux(self, identidad, i):
+        if i == len(self.contacts):
+            return False
+        elif self.contacts[i].identidad == identidad:
+            return self.contacts[i]
+        else:
             return False
 
     def save(self):
         try:
             with open("contactos.json", "w") as f:
-                json.dump(obj=self.contact, fp=f)
+                json.dump(obj=self.temp, fp=f)
             return True
         except FileNotFoundError:
             return False
 
 
+# Kinda done
 class Calculadora:
-    def suma(self, *args):
-        pass
+    def suma(self, num_array):
+        return self.suma_aux(num_array, 0)
 
-    def resta(self, *args):
-        pass
+    def suma_aux(self, num_array, result):
+        if not num_array:
+            return result
+        else:
+            result += int(num_array[0])
+            return self.suma_aux(num_array[1:], result)
 
-    def producto(self, *args):
-        pass
+    def resta(self, num_array):
+        return self.resta_aux(num_array, 0)
 
-    def division(self, *args):
-        pass
+    def resta_aux(self, num_array, result):
+        if not num_array:
+            return result
+        else:
+            result -= int(num_array[0])
+            return self.resta_aux(num_array[1:], result)
+
+    def producto(self, num_array):
+        return self.producto_aux(num_array, 0)
+
+    def producto_aux(self, num_array, result):
+        if not num_array:
+            return result
+        else:
+            result *= int(num_array[0])
+            return self.producto_aux(num_array[1:], result)
+
+    def division(self, num_array):
+        return self.division_aux(num_array, 0)
+
+    def division_aux(self, num_array, result):
+        if not num_array:
+            return result
+        else:
+            result += int(num_array[0])
+            return self.division_aux(num_array[1:], result)
+
+
+# DONE
+class Actividad:
+    def __init__(self, identidad, fecha, hora, info):
+        self.identidad = identidad
+        self.fecha = fecha
+        self.hora = hora
+        self.info = info
 
 
 class Agenda:
-    pass
+    def __init__(self):
+        with open("agenda.json", "r") as f:
+            self.agenda = json.load(fp=f)
+
+    def incluir(self, fecha, hora, info):
+        self.agenda += Actividad(len(self.agenda), fecha, hora, info)
+
+    def eliminar(self):
+        pass
+
+    def cambiar_fecha(self, identidad, nueva_fecha):
+        try:
+            i = self.agenda.index(identidad)
+            self.agenda[i].fecha = nueva_fecha
+            return True
+
+        except IndexError:
+            return False
+
+    def cambiar_hora(self, identidad, nueva_hora):
+        try:
+            i = self.agenda.index(identidad)
+            self.agenda[i].hora = nueva_hora
+            return True
+
+        except IndexError:
+            return False
+
+    def mostrar(self):
+        """
+        :return: Lista de Actividades
+        """
+        return self.agenda
 
 
+# DONE
 class Ahorcado:
     """
     Clase que maneja la lógica para el juego de ahorcado
     Genera la palabra a utilizar y comprueba cada vez que se le pide
     """
+
     def __init__(self, idi):
         self.idi = idi
+        self.adivinadas = ""
 
         with open("pal.json", "r") as f:
             load = json.load(fp=f)
-        if self.idi:
-            i = random.randint(0, len(load["palabras"]))
+        if not self.idi:
+            i = random.randint(0, len(load["palabras"])-1)
             self.actual = load["palabras"][i]
         else:
-            i = random.randint(0, load["words"])
+            i = random.randint(0, len(load["words"])-1)
             self.actual = load["words"][i]
 
     def get_actual(self):
         return self.actual
 
+    def get_adivinadas(self):
+        return self.adivinadas
+
     def comprobar_letra(self, letra):
         """
+        Condiciones: Entrada debe ser str de longitud 1 que se encuentra en self.actual.
         :param letra: char
-        :return: bool que indica si la letra dada por el usuario está en la
-        palabra actual.
+        :return: int que indica si la letra dada por el usuario está en la
+        palabra actual y cumple las condiciones.
         """
-        result = False
-        if letra in self.actual:
-            result = True
+        result = 0
+        if len(letra) != 1:
+            pass
+
+        elif letra in self.adivinadas:
+            result = -1
+
+        elif isinstance(letra, str) and letra in self.actual:
+            self.adivinadas += letra
+            result = 1
+
         return result
 
-    # Hacer en shell para que no pueda enviar "palabra" vacío.
+    def pos(self, letra, i, result):
+        """
+        :param letra: Letra ingresada por el usuario
+        :param i: índice para recorrer caracteres en self.actual
+        :param result: lista donde se pondrán posiciones
+        :return: posiciones donde se encuentra la letra en self.actual
+        """
+        if i >= len(self.actual):
+            return result
+        elif self.actual[i] == letra:
+            return self.pos(letra, i + 1, result + [i])
+        else:
+            return self.pos(letra, i + 1, result)
+
+    # TODO: Hacer en shell para que no pueda enviar "palabra" vacío!!!
     def comprobar_palabra(self, palabra):
         """
-        :param palabra: string array
+        :param palabra: string
         :return: bool que indica si el usuario a logrado adivinar todas las letras
-        de la palabra actual.
+        de la palabra actual(self.actual).
         """
-        temp = self.actual
-        return self.comprobar_palabra_aux(palabra, temp)
+        return self.comprobar_palabra_aux(palabra, self.actual)
 
     def comprobar_palabra_aux(self, palabra, temp):
-        if palabra is None and temp is None:
+        if (not palabra and temp) or (palabra and not temp):
+            return False
+
+        elif not palabra and not temp:
             return True
+
         elif palabra[0] in temp:
             i = temp.index(palabra[0])
-            self.comprobar_palabra_aux(palabra[1:], temp[:i])
+            return self.comprobar_palabra_aux(palabra[1:], temp[0:i]+temp[i+1:len(temp)])
+
         else:
             return False
 
@@ -194,9 +331,10 @@ def cambiar_pin(nuevo_pin):
             return True
         else:
             return False
+    # TODO: Especificar except.
     except:
-        print("failed cuz tried to convert to int")
         return False
 
-def reloj():
+
+def get_time():
     return datetime.datetime.today()

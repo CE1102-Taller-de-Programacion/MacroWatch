@@ -1,9 +1,7 @@
-  {
-
-    "ids" : [123],
-    "nombres": ["Pablo"],
-    "telefonos": [[321,456]],
-    "celular": [567],
-    "correos": ["p@gmail.com"],
-    "fotos": ["pablo.jpg"]
+{
+  "123": {
+    "id": 123,
+    "nombre": "jeff",
+    "correo": "f@gmail.com"
   }
+}

@@ -14,7 +14,9 @@ idi = {
     "cepin": ("¡Éxito!, el nuevo PIN fue configurado", "Success!, the new PIN has been configured"),
     "cfpin": ("Fallo, el PIN no es válido o se perdió integridad de archivos",
               "Failure, the PIN is not valid or file integrity is lost"),
-    "apagar": ("Apagar", "Turn off")
+    "apagar": ("Apagar", "Turn off"),
+    "letra": ("Ingrese una letra", "Enter a letter"),
+    "restantes": ("Intentos Restantes:", "Attempts left:")
 }
 
 colores = {
@@ -156,8 +158,18 @@ class AhorcadoUI(tk.Frame):
         self.controlador = controlador
         self.juego = WatchOs.Ahorcado(idi=k)
         self.palabra = self.juego.get_actual()
-        self.test = tk.Label(self, text="Funciona")
-        self.test.pack()
+        self.intentos = tk.IntVar()
+        self.intentos.set(value=len(self.palabra)-1)
+
+        self.pedido = tk.Label(self, text=idi["letra"][k])
+        self.pedido.grid(row=0, column=0, pady=5, sticky="W")
+        self.restantes = tk.Label(self, text=idi["restantes"][k])
+        self.restantes.grid(row=0, column=1, padx=20)
+        self.mostrar_intentos = tk.Label(self, textvariable=self.intentos)
+        self.mostrar_intentos.grid(row=0, column=2, padx=5)
+        self.entrada = tk.Entry(self)
+        self.entrada.bind("<Return>")
+        self.entrada.grid(row=1, column=0, sticky="S")
 
 
 class ContactosUI(tk.Frame):

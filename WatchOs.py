@@ -4,6 +4,12 @@ import random
 
 
 def confirma_pin(data):
+    """
+    :param data:
+    :return: bool que indica si el PIN es correcto.
+
+    Abre el archivo de configuración para recolectar el pin, el cual es comparado el ingresado por el usuario.
+    """
     with open("config.json", "r") as f:
         config = json.load(fp=f)
 
@@ -14,6 +20,9 @@ def confirma_pin(data):
 
 
 class Persona:
+    """
+    Struct que contiene los atributos de un individuo.
+    """
     def __init__(self, identidad, nombre, telefonos, celular, correo, foto):
         self.identidad = identidad
         self.nombre = nombre
@@ -27,9 +36,7 @@ class Contactos:
     """
         Maneja, muestra y administra los contactos del sistema.
     """
-
     def __init__(self):
-
         # Carga los contactos del disco.
         with open("contactos.json", "r") as f:
             self.temp = json.load(fp=f)
@@ -37,14 +44,20 @@ class Contactos:
         self.contacts = self.cargar(0, [])
 
     def cargar(self, i, result):
+        """
+        :param i: índice que carga contactos hasta el final del dict.
+        :param result: lista que sostiene todos los contactos una vez cargados
+        :return: result si ya termino / self si aún faltan contactos
+        """
         if i >= len(self.temp):
             return result
         else:
-            result += [Persona(self.temp[i]["id"], self.temp[i]["nombre"],
-                               self.temp[i]["telefonos"],
-                               self.temp[i]["celular"],
-                               self.temp[i]["correo"],
-                               self.temp[i]["foto"])]
+            j = str(i)
+            result += [Persona(self.temp[j]["id"], self.temp[j]["nombre"],
+                               self.temp[j]["telefonos"],
+                               self.temp[j]["celular"],
+                               self.temp[j]["correo"],
+                               self.temp[j]["foto"])]
 
             return self.cargar(i+1, result)
 
@@ -70,19 +83,13 @@ class Contactos:
         Elimina el usuario con la identidad correspondiente y vuelve a ordenar la lista para evitar tener espacios
         vacíos.
         """
-        se_elimino = self.eliminar_aux(identidad, 0)
-        if se_elimino:
+        try:
+            self.contacts[identidad] = None
             self.contacts = self.sort_empty(0, [])
-        return se_elimino
-
-    def eliminar_aux(self, identidad, i):
-        if i == len(self.contacts):
-            return False
-        elif self.contacts[i].identidad == identidad:
-            self.contacts[i] = None
             return True
-        else:
-            return self.eliminar_aux(identidad, i+1)
+
+        except KeyError:
+            return False
 
     def sort_empty(self, i, result):
         """
@@ -92,7 +99,7 @@ class Contactos:
         if i >= len(self.contacts):
             return result
         elif self.contacts[i] is not None:
-            result += self.contacts[i]
+            result += [self.contacts[i]]
             return self.sort_empty(i + 1, result)
         else:
             return self.sort_empty(i + 1, result)
@@ -105,14 +112,22 @@ class Contactos:
         Genera un lista copia de contactos, el cual se ordena con Selection Sort según el modo especificado.
         """
         if modo == "ID":
-            self.contacts = self.ordernar_id()
+            self.contacts = self.ordenar_id()
         elif modo == "Alfabético" or modo == "Alphabetical":
             self.contacts = self.ordenar_abc()
 
     def ordenar_id(self):
+        """
+        :return: lista ya ordenada de contactos
+        """
         return self.ordenar_id_aux(0, self.contacts, [])
 
     def ordenar_id_aux(self, i, copia, result):
+        """
+        :param i: int (índice)
+        :param copia: lista de contactos
+        :param result: lista de contactos ordenados
+        """
         if i == len(copia):
             return result
         else:
@@ -140,12 +155,35 @@ class Contactos:
             return False
 
     def save(self):
+        """
+        :return: bool que indica si la operación fue exitosa
+
+        Guarda self.contacts a disco
+        """
         try:
             with open("contactos.json", "w") as f:
-                json.dump(obj=self.temp, fp=f)
+                json.dump(obj=self.lista_dictionary(len(self.contacts)-1, {}), fp=f)
             return True
         except FileNotFoundError:
             return False
+
+    def lista_dictionary(self, i, result):
+        """
+        :param i: int índice
+        :param result: dictionario que será guardado en disco
+        :return: result
+        """
+        if i == 0:
+            return result
+        else:
+            result[str(self.contacts[i].identidad)] = {"id": str(self.contacts[i].identidad),
+                                                       "nombre": self.contacts[i].nombre,
+                                                       "telefonos": self.contacts[i].telefonos,
+                                                       "celular": self.contacts[i].celular,
+                                                       "correo": self.contacts[i].correo,
+                                                       "foto": self.contacts[i].foto}
+
+            return self.lista_dictionary(i-1, result)
 
 
 # Kinda done
@@ -204,11 +242,22 @@ class Agenda:
     def __init__(self):
         with open("agenda.json", "r") as f:
             self.agenda = json.load(fp=f)
+            self.agenda = self.cargar(0, [])
+
+    def cargar(self, i, result):
+        if i == len(self.agenda):
+            return result
+        else:
+            j = str(i)
+            result += [Actividad(i, self.agenda[j]["fecha"], self.agenda[j]["hora"], self.agenda[j]["info"])]
+
+            return self.cargar(i+1, result)
 
     def incluir(self, fecha, hora, info):
-        self.agenda += Actividad(len(self.agenda), fecha, hora, info)
+        self.agenda += [Actividad(len(self.agenda), fecha, hora, info)]
 
     def eliminar(self):
+        # TODO
         pass
 
     def cambiar_fecha(self, identidad, nueva_fecha):
@@ -257,9 +306,15 @@ class Ahorcado:
             self.actual = load["words"][i]
 
     def get_actual(self):
+        """
+        :return: str, palabra uilizada en juego actual.
+        """
         return self.actual
 
     def get_adivinadas(self):
+        """
+        :return: lista de str, letras ya adivinadas
+        """
         return self.adivinadas
 
     def comprobar_letra(self, letra):
@@ -321,6 +376,10 @@ class Ahorcado:
 
 
 def cambiar_pin(nuevo_pin):
+    """
+    :param nuevo_pin: int
+    :return: bool que indica si la operación fue exitosa
+    """
     try:
         if isinstance(nuevo_pin, str) and 0 < int(nuevo_pin) <= 9999:
             with open("config.json", "r") as f:

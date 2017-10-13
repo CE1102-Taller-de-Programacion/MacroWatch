@@ -1,6 +1,7 @@
 import json
 import datetime
 import random
+import time
 
 
 def confirma_pin(data):
@@ -396,4 +397,4 @@ def cambiar_pin(nuevo_pin):
 
 
 def get_time():
-    return datetime.datetime.today()
+    return datetime.datetime.now().time()

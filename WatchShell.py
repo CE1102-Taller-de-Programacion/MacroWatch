@@ -1,5 +1,7 @@
 import WatchOs
 import tkinter as tk
+from PIL import ImageTk
+from PIL import Image
 
 # Dict que contiene tuplas con texto a utilizar en español e inglés.
 idi = {
@@ -8,7 +10,7 @@ idi = {
     "fallo": ("PIN invalido, pruebe de nuevo", "Invalid PIN, try again"),
     "opcion": ("Opciones", "Options"),
     "idioma": ("English", "Español"),
-    "juego": ("Jugar", "Play Game"),
+    "menup": ("Menu Principal", "Main Menu"),
     "pcambio": ("Cambiar PIN", "Change PIN"),
     "npin": ("Introduzca el nuevo PIN", "Enter the new PIN"),
     "cepin": ("¡Éxito!, el nuevo PIN fue configurado", "Success!, the new PIN has been configured"),
@@ -90,7 +92,6 @@ class Controlador:
     """
     Crea y administra las frames de la aplicación, así como brindar el menu superior
     """
-
     def __init__(self):
         self.root = tk.Tk()
         self.root.geometry(newGeometry="600x500+500+100")
@@ -101,9 +102,9 @@ class Controlador:
         self.root.config(menu=menu)
         subMenu = tk.Menu(master=menu)
         menu.add_cascade(label=idi["opcion"][k], menu=subMenu)
+        subMenu.add_command(label=idi["menup"][k], command=lambda: self.mostrar_app("Main"))
+        subMenu.add_separator()
         subMenu.add_command(label=idi["idioma"][k], command=self.cambiar_idioma)
-        subMenu.add_command(label=idi["juego"][k],
-                            command=lambda: self.mostrar_app("AhorcadoUI"))
         subMenu.add_command(label=idi["pcambio"][k], command=self.Cambio)
         subMenu.add_command(label=idi["apagar"][k], command=self.apagar)
 
@@ -112,13 +113,20 @@ class Controlador:
         self.pila = tk.Frame(self.root)
         self.pila.grid(row=0, column=0, sticky="nsew")
 
-        for i in (Main, AhorcadoUI, ContactosUI, AgendaUI):
-            nombre = i.__name__
-            app = i(master=self.root, controlador=self)
-            self.apps[nombre] = app
-            app.grid(row=0, column=0, sticky="nsew")
+        self.clases = [Main, AhorcadoUI, ContactosUI, AgendaUI, CalculadoraUI]
+
+        self.cargar_apps(0)
 
         self.mostrar_app("Main")
+
+    def cargar_apps(self, i):
+        if i < len(self.clases):
+            nombre = self.clases[i].__name__
+            app = self.clases[i](master=self.root, controlador=self)
+            self.apps[nombre] = app
+            app.grid(row=0, column=0, sticky="nswe")
+
+            self.cargar_apps(i+1)
 
     class Cambio:
         def __init__(self):
@@ -182,21 +190,65 @@ class Main(tk.Frame):
     """
     Interfaz principal del reloj
     """
-
     def __init__(self, master, controlador):
         tk.Frame.__init__(self, master)
         self.controlador = controlador
-        self.test = tk.Label(master=self, text="Funciona")
-        self.test.pack()
-        self.contacts = tk.Button(self, text="Contactos", command=lambda: self.controlador.mostrar_app("ContactosUI"))
-        self.contacts.pack()
+
+        # Botón hacia contactos
+        image1 = Image.open("imagenes/contactos.png")
+        image1 = image1.resize((50, 50), Image.ANTIALIAS)
+        self.conticon = ImageTk.PhotoImage(image1)
+
+        self.contacts = tk.Button(self, command=lambda: self.controlador.mostrar_app("ContactosUI"))
+        self.contacts.place(x=50, y=300)
+        self.contacts.config(image=self.conticon)
+
+        # Botón hacia agenda
+        image2 = Image.open("imagenes/agenda.png")
+        image2 = image2.resize((50, 50), Image.ANTIALIAS)
+        self.agenicon = ImageTk.PhotoImage(image2)
+
+        self.agenda = tk.Button(self, command=lambda: self.controlador.mostrar_app("AgendaUI"))
+        self.agenda.place(x=150, y=300)
+        self.agenda.config(image=self.agenicon)
+
+        # Botón hace calculadora
+        image3 = Image.open("imagenes/calculadora.png")
+        image3 = image3.resize((50, 50), Image.ANTIALIAS)
+        self.calcicon = ImageTk.PhotoImage(image3)
+
+        self.calculadora = tk.Button(self, command=lambda: self.controlador.mostrar_app("CalculadoraUI"))
+        self.calculadora.place(x=250, y=300)
+        self.calculadora.config(image=self.calcicon)
+
+        # Botón hacia ahorcado
+        image4 = Image.open("imagenes/ahorcado.png")
+        image4 = image4.resize((50, 50), Image.ANTIALIAS)
+        self.ahorcicon = ImageTk.PhotoImage(image4)
+
+        self.ahorcado = tk.Button(self, command=lambda: self.controlador.mostrar_app("AhorcadoUI"))
+        self.ahorcado.place(x=350, y=300)
+        self.ahorcado.config(image=self.ahorcicon)
+
+        # Genera label que representa el reloj
+        self.reloj = tk.Label(master=self, text=f"{WatchOs.get_time().hour}:{WatchOs.get_time().minute}")
+        self.reloj.place(x=250, y=250)
+        self.actualizar()
+
+    def actualizar(self):
+        """
+        Actualiza el reloj por segundo.
+        """
+        self.reloj.config(text=f'{WatchOs.get_time().hour}:{WatchOs.get_time().minute}:'
+                               f'{WatchOs.get_time().second}')
+
+        self.reloj.after(1000, lambda: self.actualizar())
 
 
 class AhorcadoUI(tk.Frame):
     """
     Interfaz para el juego de ahorcado
     """
-
     def __init__(self, master, controlador):
         tk.Frame.__init__(self, master)
         self.controlador = controlador
@@ -231,12 +283,11 @@ class ContactosUI(tk.Frame):
         self.controlador = controlador
         self.contactos = WatchOs.Contactos()
         self.oid = tk.Button(self.left, text=f"{idi['oabc'][k]}")
-        self.oid.grid(row=0, column=0, padx=60)
+        self.oid.grid(row=0, column=0, sticky="n")
         self.oabc = tk.Button(self.left, text=f"{idi['oid'][k]}")
-        self.oabc.grid(row=1, column=0, pady=30, padx=60)
+        self.oabc.grid(row=1, column=0, sticky="n")
 
-        self.botones = [tk.Button(self.right, text="Recargar",
-                                  command=lambda: self.display(0))]
+        self.botones = [None]
 
         self.labels = self.display(0, [tk.Label(self.right, text=f"ID   {idi['contnombre'][k]}   {idi['conttel'][k]}   "
                                                                  f"{idi['contcel'][k]}   {idi['contcorreo'][k]}   "
@@ -246,6 +297,11 @@ class ContactosUI(tk.Frame):
         self.mostrar(0, 0, self.labels)
 
     def display(self, i, result):
+        """
+        :param i:
+        :param result:
+        :return: llena listas con las widgets necesarias para mostrar.
+        """
         conts = self.contactos.contacts
         if i < len(self.contactos.contacts):
             result += [tk.Label(self.right, text=f"{conts[i].identidad}   {conts[i].nombre}   "
@@ -260,9 +316,18 @@ class ContactosUI(tk.Frame):
             return result
 
     def mostrar(self, i, j, labels):
-        if i < len(labels):
+        """
+        :param i: int, índice de elmento
+        :param j: int, índice de ordenamiento
+        :param labels: lista de Labels
+        Muestra los contactos en la interfaz
+        """
+        if 0 < i < len(labels):
             labels[i].grid(row=j, column=0, pady=0, sticky="W")
             self.botones[i].grid(row=j + 1, column=0, pady=10, sticky="W")
+            self.mostrar(i + 1, j + 2, labels)
+        elif i < len(labels):
+            labels[i].grid(row=j, column=0, pady=0, sticky="W")
             self.mostrar(i + 1, j + 2, labels)
 
 
@@ -296,6 +361,11 @@ class AgendaUI(tk.Frame):
             labels[i].grid(row=i, column=0, padx=5)
 
             self.mostrar(i + 1, labels)
+
+
+class CalculadoraUI(tk.Frame):
+    def __init__(self, master, controlador):
+        tk.Frame.__init__(self, master)
 
 
 if __name__ == "__main__":

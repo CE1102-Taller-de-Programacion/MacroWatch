@@ -30,5 +30,13 @@
     "celular": 888,
     "correo": "f@gmail.com",
     "foto": "jeff.jpg"
+  },
+  "4": {
+    "id": 4,
+    "nombre": "Lucas",
+    "telefonos": [875],
+    "celular": 968,
+    "correo": "l@gmail.com",
+    "foto": "lucas.jpg"
   }
 }

@@ -292,10 +292,10 @@ class Ahorcado:
     Clase que maneja la lógica para el juego de ahorcado
     Genera la palabra a utilizar y comprueba cada vez que se le pide
     """
-
     def __init__(self, idi):
         self.idi = idi
         self.adivinadas = ""
+        self.equivocadas = ""
 
         with open("pal.json", "r") as f:
             load = json.load(fp=f)
@@ -329,11 +329,17 @@ class Ahorcado:
         if len(letra) != 1:
             pass
 
-        elif letra in self.adivinadas:
+        elif letra not in self.actual and letra not in self.equivocadas:
+            self.equivocadas += letra
             result = -1
 
-        elif isinstance(letra, str) and letra in self.actual:
-            self.adivinadas += letra
+        elif letra in self.adivinadas or letra in self.equivocadas:
+            result = -2
+
+        elif letra in self.actual:
+            lista_letra = self.cantidad_letras(0, letra, self.pos(letra, 0, []), [])
+            hil_letra = "".join(lista_letra)
+            self.adivinadas += hil_letra
             result = 1
 
         return result
@@ -352,14 +358,21 @@ class Ahorcado:
         else:
             return self.pos(letra, i + 1, result)
 
+    def cantidad_letras(self, i, letra, pos, result):
+        if i >= len(pos):
+            return result
+        else:
+            result += [letra]
+            return self.cantidad_letras(i+1, letra, pos, result)
+
     # TODO: Hacer en shell para que no pueda enviar "palabra" vacío!!!
-    def comprobar_palabra(self, palabra):
+    def comprobar_palabra(self):
         """
         :param palabra: string
         :return: bool que indica si el usuario a logrado adivinar todas las letras
         de la palabra actual(self.actual).
         """
-        return self.comprobar_palabra_aux(palabra, self.actual)
+        return self.comprobar_palabra_aux(self.adivinadas, self.actual)
 
     def comprobar_palabra_aux(self, palabra, temp):
         if (not palabra and temp) or (palabra and not temp):
@@ -397,4 +410,4 @@ def cambiar_pin(nuevo_pin):
 
 
 def get_time():
-    return datetime.datetime.now().time()
+    return datetime.datetime.now()

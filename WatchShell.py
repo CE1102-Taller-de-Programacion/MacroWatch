@@ -29,7 +29,11 @@ idi = {
     "agenevento": ("Evento", "Event"),
     "delcont": ("Eliminar Contacto", "Delete contact"),
     "oid": ("Ordenar por ID", "Sort by ID"),
-    "oabc": ("Ordenar por nombre", "Sort by name")
+    "oabc": ("Ordenar por nombre", "Sort by name"),
+    "badivina": ("Bien adivinado!", "Good guess!"),
+    "madivina": ("Mal adivinado", "Bad guess"),
+    "noletra": ("Entrada no es una letra", "Entry is not a letter"),
+    "readivina": ("Ya adivinó esa letra...", "Already guessed that letter...")
 }
 
 colores = {
@@ -49,7 +53,6 @@ class Comienzo:
     """
         Maneja el ingreso al sistema, aceptando una entrada que debe coincidir con el número de PIN.
     """
-
     def __init__(self):
         self.root = tk.Tk()
         self.root.title(string="MacroWatch")
@@ -111,7 +114,7 @@ class Controlador:
         self.apps = {}
 
         self.pila = tk.Frame(self.root)
-        self.pila.grid(row=0, column=0, sticky="nsew")
+        self.pila.place(relwidth=1, relheight=1)
 
         self.clases = [Main, AhorcadoUI, ContactosUI, AgendaUI, CalculadoraUI]
 
@@ -120,13 +123,26 @@ class Controlador:
         self.mostrar_app("Main")
 
     def cargar_apps(self, i):
+        """
+        :param i:
+        Carga cada Frame dentro del dict apps
+        """
         if i < len(self.clases):
             nombre = self.clases[i].__name__
             app = self.clases[i](master=self.root, controlador=self)
             self.apps[nombre] = app
-            app.grid(row=0, column=0, sticky="nswe")
+            app.place(relwidth=1, relheight=1)
 
             self.cargar_apps(i+1)
+
+
+    def mostrar_app(self, nombre):
+        """
+        :param nombre: str, nombre de la app que se quiere mostrar en la interfaz.
+        Alza la frame que sea desea mostrar por encima del resto.
+        """
+        app = self.apps[nombre]
+        app.tkraise()
 
     class Cambio:
         def __init__(self):
@@ -167,7 +183,7 @@ class Controlador:
 
     def cambiar_idioma(self):
         """
-        Cambia el idioma de la interfaz -Provoca que la ventana se cierre y abra-
+        Cambia el idioma de la interfaz -Provoca que la ventana se cierre y abra para hacer el cambio-
         """
         global k
         if k:
@@ -177,18 +193,10 @@ class Controlador:
         self.root.destroy()
         Controlador()
 
-    def mostrar_app(self, nombre):
-        """
-        :param nombre: str, nombre de la app que se quiere mostrar en la interfaz
-        Alza la frame que sea desea mostrar por encima del resto.
-        """
-        app = self.apps[nombre]
-        app.tkraise()
-
 
 class Main(tk.Frame):
     """
-    Interfaz principal del reloj
+    Interfaz principal del reloj inteligente
     """
     def __init__(self, master, controlador):
         tk.Frame.__init__(self, master)
@@ -200,7 +208,7 @@ class Main(tk.Frame):
         self.conticon = ImageTk.PhotoImage(image1)
 
         self.contacts = tk.Button(self, command=lambda: self.controlador.mostrar_app("ContactosUI"))
-        self.contacts.place(x=50, y=300)
+        self.contacts.place(x=75, y=325)
         self.contacts.config(image=self.conticon)
 
         # Botón hacia agenda
@@ -209,7 +217,7 @@ class Main(tk.Frame):
         self.agenicon = ImageTk.PhotoImage(image2)
 
         self.agenda = tk.Button(self, command=lambda: self.controlador.mostrar_app("AgendaUI"))
-        self.agenda.place(x=150, y=300)
+        self.agenda.place(x=200, y=325)
         self.agenda.config(image=self.agenicon)
 
         # Botón hace calculadora
@@ -218,7 +226,7 @@ class Main(tk.Frame):
         self.calcicon = ImageTk.PhotoImage(image3)
 
         self.calculadora = tk.Button(self, command=lambda: self.controlador.mostrar_app("CalculadoraUI"))
-        self.calculadora.place(x=250, y=300)
+        self.calculadora.place(x=325, y=325)
         self.calculadora.config(image=self.calcicon)
 
         # Botón hacia ahorcado
@@ -227,20 +235,22 @@ class Main(tk.Frame):
         self.ahorcicon = ImageTk.PhotoImage(image4)
 
         self.ahorcado = tk.Button(self, command=lambda: self.controlador.mostrar_app("AhorcadoUI"))
-        self.ahorcado.place(x=350, y=300)
+        self.ahorcado.place(x=450, y=325)
         self.ahorcado.config(image=self.ahorcicon)
 
         # Genera label que representa el reloj
-        self.reloj = tk.Label(master=self, text=f"{WatchOs.get_time().hour}:{WatchOs.get_time().minute}")
-        self.reloj.place(x=250, y=250)
+        ahora = WatchOs.get_time()
+        self.reloj = tk.Label(master=self, text=f"{ahora.hour}:{ahora.minute}:{ahora.second}",
+                              font=("Roboto", 25))
+        self.reloj.place(x=225, y=150)
         self.actualizar()
 
     def actualizar(self):
         """
         Actualiza el reloj por segundo.
         """
-        self.reloj.config(text=f'{WatchOs.get_time().hour}:{WatchOs.get_time().minute}:'
-                               f'{WatchOs.get_time().second}')
+        ahora = WatchOs.get_time()
+        self.reloj.config(text=f"{ahora.hour}:{ahora.minute}:{ahora.second}")
 
         self.reloj.after(1000, lambda: self.actualizar())
 
@@ -253,27 +263,110 @@ class AhorcadoUI(tk.Frame):
         tk.Frame.__init__(self, master)
         self.controlador = controlador
         self.juego = WatchOs.Ahorcado(idi=k)
+
         self.palabra = self.juego.get_actual()
+
         self.intentos = tk.IntVar()
-        self.intentos.set(value=len(self.palabra) - 1)
+        self.intentos.set(value=5)
 
-        self.pedido = tk.Label(self, text=idi["letra"][k])
-        self.pedido.grid(row=0, column=0, pady=5, sticky="W")
-        self.restantes = tk.Label(self, text=idi["restantes"][k])
-        self.restantes.grid(row=0, column=1, padx=20)
-        self.mostrar_intentos = tk.Label(self, textvariable=self.intentos)
-        self.mostrar_intentos.grid(row=0, column=2, padx=5)
+        self.pedido = tk.Label(self, text=idi["letra"][k], font=("Roboto", 12))
+        self.pedido.place(x=220, y=245)
+
+        self.restantes = tk.Label(self, text=idi["restantes"][k], font=("Roboto", 12))
+        self.restantes.place(x=350, y=10)
+
+        self.mostrar_intentos = tk.Label(self, textvariable=self.intentos, font=("Roboto", 12))
+        if not k:
+            self.mostrar_intentos.place(x=490, y=10)
+        else:
+            self.mostrar_intentos.place(x=450, y=10)
+
         self.guarda_letra = tk.StringVar()
-        self.entrada = tk.Entry(self)
-        self.entrada.bind("<Return>", func=lambda: self.juego.comprobar_letra(self.guarda_letra))
-        self.entrada.grid(row=1, column=0, sticky="S")
+        self.entrada = tk.Entry(self, textvariable=self.guarda_letra)
+        self.entrada.bind("<Return>", func=self.comprueba)
+        self.entrada.place(x=220, y=270)
 
+        self.feedback = tk.StringVar()
+        self.feedback_container = tk.Label(self, textvariable=self.feedback, font=("Roboto", 12))
+        self.feedback_container.place(x=222, y=300)
+
+        self.secretas = self.adivina_labels(0, [])
+
+    def adivina_labels(self, i, result):
+        """
+        :param i: int, índice
+        :param result: lista de Labels
+        :return: result
+        Crea labels que representan una incógnita de una letra según la cantidad de letras que la palabra actual
+        posea.
+        """
+        if i >= len(self.palabra):
+            return result
+        else:
+            result += [tk.Label(self, text="__", font=("Roboto", 20))]
+            result[i].grid(row=2, column=i)
+            return self.adivina_labels(i+1, result)
+
+    def comprueba(self, *args):
+        """
+        :param args:
+        :return: Determina si la letra adivinada por el usuario se encuentra en la palabra, no lo está,
+        tiene longitud inválida o ya se adivino previamente.
+        """
+        letra = self.juego.comprobar_letra(self.guarda_letra.get())
+
+        if letra == 1:
+            print(self.juego.adivinadas)
+            self.mostrar(self.guarda_letra.get())
+            self.feedback.set(idi["badivina"][k])
+
+            if self.juego.comprobar_palabra():
+                self.terminar(True)
+
+        elif letra == 0:
+            self.feedback.set(idi["noletra"][k])
+
+        elif letra == -1:
+            self.intentos.set(self.intentos.get() - 1)
+            self.feedback.set(idi["madivina"][k])
+            if not self.intentos.get():
+                self.terminar(False)
+
+        else:
+            self.feedback.set(idi["readivina"][k])
+
+    def mostrar(self, letra):
+        """
+        :param letra:
+        :return: Al adivinar una letra, cambia las posiciones escondidas por la letra correspondiente
+        """
+        pos = self.juego.pos(letra, 0, [])
+        self.mostrar_aux(pos, letra, 0)
+
+    def mostrar_aux(self, pos, letra, i):
+        if i < len(pos):
+            self.secretas[pos[i]].config(text=letra)
+            self.mostrar_aux(pos, letra, i+1)
+
+    def terminar(self, resultado):
+        """
+        Termina el juego en el caso que el jugador pierda o gane. Y le indica el resultado
+        """
+        final = tk.Frame(self)
+        final.place(relwidth=1, relheight=1)
+        if resultado:
+            ganador = tk.Label(final, text="WINNER WINNER CHICKEN DINNER!", font=("Roboto", 16))
+            ganador.pack()
+        else:
+            perdedor = tk.Label(final, text="You have lost", font=("Roboto", 16))
+            perdedor.pack()
+        reiniciar = tk.Button(final, text="Reinicar partida")
+        reiniciar.pack()
 
 class ContactosUI(tk.Frame):
     """
     Interfaz para mostrar contactos
     """
-
     def __init__(self, master, controlador):
         tk.Frame.__init__(self, master)
         self.right = tk.Frame(self)
@@ -283,9 +376,9 @@ class ContactosUI(tk.Frame):
         self.controlador = controlador
         self.contactos = WatchOs.Contactos()
         self.oid = tk.Button(self.left, text=f"{idi['oabc'][k]}")
-        self.oid.grid(row=0, column=0, sticky="n")
+        self.oid.grid(row=0, column=0, sticky="n", padx=60)
         self.oabc = tk.Button(self.left, text=f"{idi['oid'][k]}")
-        self.oabc.grid(row=1, column=0, sticky="n")
+        self.oabc.grid(row=1, column=0, sticky="n", padx=60)
 
         self.botones = [None]
 
@@ -348,6 +441,12 @@ class AgendaUI(tk.Frame):
         self.mostrar(0, self.labels)
 
     def display(self, i, result):
+        """
+        :param i: int
+        :param result: lista de labels
+        :return: result
+        Crea una lista de Labels necesarias para sostener todas las habilidades guardadas.
+        """
         actv = self.actividades.agenda
         if i < len(actv):
             result += [tk.Label(self, text=f"{actv[i].identidad}   {actv[i].fecha}   {actv[i].hora}   "
@@ -358,7 +457,7 @@ class AgendaUI(tk.Frame):
 
     def mostrar(self, i, labels):
         if i < len(labels):
-            labels[i].grid(row=i, column=0, padx=5)
+            labels[i].grid(row=i, column=0, padx=5, sticky="w")
 
             self.mostrar(i + 1, labels)
 
@@ -366,6 +465,8 @@ class AgendaUI(tk.Frame):
 class CalculadoraUI(tk.Frame):
     def __init__(self, master, controlador):
         tk.Frame.__init__(self, master)
+        self.temp = tk.Label(self, text="WIP")
+        self.temp.pack()
 
 
 if __name__ == "__main__":

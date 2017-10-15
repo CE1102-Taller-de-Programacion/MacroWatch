@@ -2,7 +2,13 @@
   "0": {
     "identidad": 0,
     "fecha": "20/10/2017",
-    "hora": "10:00",
+    "hora": "10:00am",
     "info": "Caminata por los glaciares"
+  },
+  "1": {
+    "identidad": 1,
+    "fecha": "30/8/2018",
+    "hora": "2:00pm",
+    "info": "Salir a tomar cafe"
   }
 }

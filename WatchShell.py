@@ -2,6 +2,7 @@ import WatchOs
 import tkinter as tk
 from PIL import ImageTk
 from PIL import Image
+import calendar
 
 # Dict que contiene tuplas con texto a utilizar en español e inglés.
 idi = {
@@ -30,10 +31,13 @@ idi = {
     "delcont": ("Eliminar Contacto", "Delete contact"),
     "oid": ("Ordenar por ID", "Sort by ID"),
     "oabc": ("Ordenar por nombre", "Sort by name"),
-    "badivina": ("Bien adivinado!", "Good guess!"),
+    "badivina": ("¡Bien adivinado!", "Good guess!"),
     "madivina": ("Mal adivinado", "Bad guess"),
     "noletra": ("Entrada no es una letra", "Entry is not a letter"),
-    "readivina": ("Ya adivinó esa letra...", "Already guessed that letter...")
+    "readivina": ("Ya adivinó esa letra...", "Already guessed that letter..."),
+    "aganador": ("¡FELICIDADES, HA GANADO!", "WINNER WINNER, CHICKEN DINNER!"),
+    "aperdedor": ("Ha perdido", "You have lost"),
+    "greiniciar": ("Reiniciar Juego", "Restart Game")
 }
 
 colores = {
@@ -53,11 +57,12 @@ class Comienzo:
     """
         Maneja el ingreso al sistema, aceptando una entrada que debe coincidir con el número de PIN.
     """
+
     def __init__(self):
         self.root = tk.Tk()
         self.root.title(string="MacroWatch")
-        self.root.iconbitmap(bitmap="watch.ico")
-        self.root.geometry(newGeometry="250x75+500+200")
+        self.root.iconbitmap(bitmap="imagenes/watch.ico")
+        self.root.geometry(newGeometry="250x75+550+300")
         self.intento = tk.StringVar()
         self.login()
         self.root.mainloop()
@@ -95,12 +100,13 @@ class Controlador:
     """
     Crea y administra las frames de la aplicación, así como brindar el menu superior
     """
+
     def __init__(self):
         self.root = tk.Tk()
-        self.root.geometry(newGeometry="600x500+500+100")
+        self.root.geometry(newGeometry="600x500+400+100")
         self.root.title(string="MacroWatch")
-        self.root.iconbitmap(bitmap="watch.ico")
-        self.root.resizable(False, False)
+        self.root.iconbitmap(bitmap="imagenes/watch.ico")
+        self.root.resizable(width=False, height=False)
         menu = tk.Menu(master=self.root)
         self.root.config(menu=menu)
         subMenu = tk.Menu(master=menu)
@@ -112,9 +118,6 @@ class Controlador:
         subMenu.add_command(label=idi["apagar"][k], command=self.apagar)
 
         self.apps = {}
-
-        self.pila = tk.Frame(self.root)
-        self.pila.place(relwidth=1, relheight=1)
 
         self.clases = [Main, AhorcadoUI, ContactosUI, AgendaUI, CalculadoraUI]
 
@@ -135,7 +138,6 @@ class Controlador:
 
             self.cargar_apps(i+1)
 
-
     def mostrar_app(self, nombre):
         """
         :param nombre: str, nombre de la app que se quiere mostrar en la interfaz.
@@ -152,7 +154,7 @@ class Controlador:
             self.root = tk.Tk()
             self.root.title(string=idi["pcambio"][k])
             self.root.geometry("250x75+500+200")
-            self.root.iconbitmap(bitmap="watch.ico")
+            self.root.iconbitmap(bitmap="imagenes/watch.ico")
             self.pin = tk.StringVar(self.root)
             self.instruc = tk.Label(master=self.root, text=idi["npin"][k])
             self.instruc.pack()
@@ -198,16 +200,26 @@ class Main(tk.Frame):
     """
     Interfaz principal del reloj inteligente
     """
+
     def __init__(self, master, controlador):
         tk.Frame.__init__(self, master)
         self.controlador = controlador
+
+        # Fondo de pantalla
+        fondo = Image.open("imagenes/background.png")
+        fondo = fondo.resize((600, 500), Image.ANTIALIAS)
+        test = ImageTk.PhotoImage(fondo)
+        self.background = tk.Label(self, image=test)
+        self.background.image = test
+        self.background.place(relwidth=1, relheight=1)
 
         # Botón hacia contactos
         image1 = Image.open("imagenes/contactos.png")
         image1 = image1.resize((50, 50), Image.ANTIALIAS)
         self.conticon = ImageTk.PhotoImage(image1)
 
-        self.contacts = tk.Button(self, command=lambda: self.controlador.mostrar_app("ContactosUI"))
+        self.contacts = tk.Button(self, command=lambda: self.controlador.mostrar_app("ContactosUI"), bg="#AF9483",
+                                  borderwidth=0)
         self.contacts.place(x=75, y=325)
         self.contacts.config(image=self.conticon)
 
@@ -216,7 +228,8 @@ class Main(tk.Frame):
         image2 = image2.resize((50, 50), Image.ANTIALIAS)
         self.agenicon = ImageTk.PhotoImage(image2)
 
-        self.agenda = tk.Button(self, command=lambda: self.controlador.mostrar_app("AgendaUI"))
+        self.agenda = tk.Button(self, command=lambda: self.controlador.mostrar_app("AgendaUI"), bg="#AF9483",
+                                  borderwidth=0)
         self.agenda.place(x=200, y=325)
         self.agenda.config(image=self.agenicon)
 
@@ -225,7 +238,8 @@ class Main(tk.Frame):
         image3 = image3.resize((50, 50), Image.ANTIALIAS)
         self.calcicon = ImageTk.PhotoImage(image3)
 
-        self.calculadora = tk.Button(self, command=lambda: self.controlador.mostrar_app("CalculadoraUI"))
+        self.calculadora = tk.Button(self, command=lambda: self.controlador.mostrar_app("CalculadoraUI"), bg="#AF9483",
+                                  borderwidth=0)
         self.calculadora.place(x=325, y=325)
         self.calculadora.config(image=self.calcicon)
 
@@ -234,65 +248,87 @@ class Main(tk.Frame):
         image4 = image4.resize((50, 50), Image.ANTIALIAS)
         self.ahorcicon = ImageTk.PhotoImage(image4)
 
-        self.ahorcado = tk.Button(self, command=lambda: self.controlador.mostrar_app("AhorcadoUI"))
+        self.ahorcado = tk.Button(self, command=lambda: self.controlador.mostrar_app("AhorcadoUI"), bg="#AF9483",
+                                  borderwidth=0)
         self.ahorcado.place(x=450, y=325)
         self.ahorcado.config(image=self.ahorcicon)
 
         # Genera label que representa el reloj
         ahora = WatchOs.get_time()
         self.reloj = tk.Label(master=self, text=f"{ahora.hour}:{ahora.minute}:{ahora.second}",
-                              font=("Roboto", 25))
-        self.reloj.place(x=225, y=150)
-        self.actualizar()
+                              font=("Roboto", 40), bg="#AD5D5D", fg="#ffffff")
 
-    def actualizar(self):
+        # Genera label que representa la fecha
+        self.fecha = tk.Label(master=self, text=f"{calendar.month_name[ahora.month]} {ahora.day}, {ahora.year}",
+                              font=("Roboto", 15), bg="#AD5D5D", fg="#ffffff")
+
+        self.reloj.place(x=200, y=100)
+        self.fecha.place(x=223, y=160)
+
+        self.actualizar_hora()
+        self.actualizar_fecha()
+
+    def actualizar_hora(self):
         """
         Actualiza el reloj por segundo.
         """
         ahora = WatchOs.get_time()
         self.reloj.config(text=f"{ahora.hour}:{ahora.minute}:{ahora.second}")
 
-        self.reloj.after(1000, lambda: self.actualizar())
+        self.reloj.after(ms=1000, func=lambda: self.actualizar_hora())
+
+    def actualizar_fecha(self):
+        """
+        Actualiza la fecha por minuto.
+        """
+        ahora = WatchOs.get_time()
+        self.fecha.config(text=f"{calendar.month_name[ahora.month]} {ahora.day}, {ahora.year}")
+
+        self.fecha.after(ms=60000, func=lambda: self.actualizar_fecha())
 
 
 class AhorcadoUI(tk.Frame):
     """
     Interfaz para el juego de ahorcado
     """
+
     def __init__(self, master, controlador):
         tk.Frame.__init__(self, master)
+        self.config(bg="#212121")
         self.controlador = controlador
         self.juego = WatchOs.Ahorcado(idi=k)
 
         self.palabra = self.juego.get_actual()
 
         self.intentos = tk.IntVar()
-        self.intentos.set(value=5)
+        self.intentos.set(value=self.juego.intentos)
 
-        self.pedido = tk.Label(self, text=idi["letra"][k], font=("Roboto", 12))
-        self.pedido.place(x=220, y=245)
+        self.pedido = tk.Label(self, text=idi["letra"][k], font=("Roboto", 12), fg="#2BBBAD", bg="#212121")
+        self.pedido.place(x=221, y=240)
 
-        self.restantes = tk.Label(self, text=idi["restantes"][k], font=("Roboto", 12))
+        self.restantes = tk.Label(self, text=idi["restantes"][k], font=("Roboto", 12), bg="#212121", fg="#0099CC")
         self.restantes.place(x=350, y=10)
 
-        self.mostrar_intentos = tk.Label(self, textvariable=self.intentos, font=("Roboto", 12))
+        self.mostrar_intentos = tk.Label(self, textvariable=self.intentos, font=("Roboto", 12), bg="#212121",
+                                         fg="#0099CC")
         if not k:
             self.mostrar_intentos.place(x=490, y=10)
         else:
             self.mostrar_intentos.place(x=450, y=10)
 
         self.guarda_letra = tk.StringVar()
-        self.entrada = tk.Entry(self, textvariable=self.guarda_letra)
+        self.entrada = tk.Entry(self, textvariable=self.guarda_letra, bg="#263238", fg="#ffffff", borderwidth=0)
         self.entrada.bind("<Return>", func=self.comprueba)
         self.entrada.place(x=220, y=270)
 
         self.feedback = tk.StringVar()
-        self.feedback_container = tk.Label(self, textvariable=self.feedback, font=("Roboto", 12))
-        self.feedback_container.place(x=222, y=300)
+        self.feedback_container = tk.Label(self, textvariable=self.feedback, font=("Roboto", 12), bg="#212121",
+                                           fg="#ffbb33")
+        self.feedback_container.place(x=220, y=300)
 
-        self.secretas = self.adivina_labels(0, [])
+        self.secretas = self.adivina_labels(0, 125, [])
 
-    def adivina_labels(self, i, result):
+    def adivina_labels(self, i, coord, result):
         """
         :param i: int, índice
         :param result: lista de Labels
@@ -303,9 +339,14 @@ class AhorcadoUI(tk.Frame):
         if i >= len(self.palabra):
             return result
         else:
-            result += [tk.Label(self, text="__", font=("Roboto", 20))]
-            result[i].grid(row=2, column=i)
-            return self.adivina_labels(i+1, result)
+            result += [tk.Label(self, text="__", font=("Roboto", 20), fg="#ff4444", bg="#212121")]
+            result[i].place(x=coord, y=150)
+            return self.adivina_labels(i+1, coord+50, result)
+
+    def eliminar_secretas(self, i):
+        if i < len(self.secretas):
+            self.secretas[i].destroy()
+            self.eliminar_secretas(i+1)
 
     def comprueba(self, *args):
         """
@@ -316,7 +357,6 @@ class AhorcadoUI(tk.Frame):
         letra = self.juego.comprobar_letra(self.guarda_letra.get())
 
         if letra == 1:
-            print(self.juego.adivinadas)
             self.mostrar(self.guarda_letra.get())
             self.feedback.set(idi["badivina"][k])
 
@@ -355,18 +395,62 @@ class AhorcadoUI(tk.Frame):
         final = tk.Frame(self)
         final.place(relwidth=1, relheight=1)
         if resultado:
-            ganador = tk.Label(final, text="WINNER WINNER CHICKEN DINNER!", font=("Roboto", 16))
-            ganador.pack()
+            final.config(bg="#212121")
+            ganador = tk.Label(master=final, text=idi["aganador"][k], font=("Roboto", 23), fg="#00C851", bg="#212121")
+            ganador.place(relx=0.5, rely=0.5, anchor="center")
+
         else:
-            perdedor = tk.Label(final, text="You have lost", font=("Roboto", 16))
-            perdedor.pack()
-        reiniciar = tk.Button(final, text="Reinicar partida")
-        reiniciar.pack()
+            final.config(bg="#212121")
+            perdedor = tk.Label(master=final, text=idi["aperdedor"][k], font=("Roboto", 23), fg="#ff4444", bg="#212121")
+            perdedor.place(relx=0.5, rely=0.5, anchor="center")
+
+        reiniciar = tk.Button(master=final, text=idi["greiniciar"][k], command=lambda: self.reiniciar(final),
+                              bg="#212121", fg="#0099CC", borderwidth=0)
+        reiniciar.place(x=255, y=300)
+
+    def reiniciar(self, garbage):
+        garbage.destroy()
+        self.feedback_container.destroy()
+        self.eliminar_secretas(0)
+
+        self.juego = WatchOs.Ahorcado(idi=k)
+
+        self.palabra = self.juego.get_actual()
+
+        self.intentos = tk.IntVar()
+        self.intentos.set(value=self.juego.intentos)
+
+        self.pedido = tk.Label(self, text=idi["letra"][k], font=("Roboto", 12), fg="#2BBBAD", bg="#212121")
+        self.pedido.place(x=221, y=240)
+
+        self.restantes = tk.Label(self, text=idi["restantes"][k], font=("Roboto", 12), bg="#212121", fg="#0099CC")
+        self.restantes.place(x=350, y=10)
+
+        self.mostrar_intentos = tk.Label(self, textvariable=self.intentos, font=("Roboto", 12), bg="#212121",
+                                         fg="#0099CC")
+        if not k:
+            self.mostrar_intentos.place(x=490, y=10)
+        else:
+            self.mostrar_intentos.place(x=450, y=10)
+
+        self.guarda_letra = tk.StringVar()
+        self.entrada = tk.Entry(self, textvariable=self.guarda_letra, bg="#263238", fg="#ffffff", borderwidth=0)
+        self.entrada.bind("<Return>", func=self.comprueba)
+        self.entrada.place(x=220, y=270)
+
+        self.feedback = tk.StringVar()
+        self.feedback_container = tk.Label(self, textvariable=self.feedback, font=("Roboto", 12), bg="#212121",
+                                           fg="#ffbb33")
+        self.feedback_container.place(x=220, y=300)
+
+        self.secretas = self.adivina_labels(0, 125, [])
+
 
 class ContactosUI(tk.Frame):
     """
     Interfaz para mostrar contactos
     """
+
     def __init__(self, master, controlador):
         tk.Frame.__init__(self, master)
         self.right = tk.Frame(self)

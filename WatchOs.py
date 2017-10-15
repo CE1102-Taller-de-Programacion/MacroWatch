@@ -1,7 +1,6 @@
 import json
 import datetime
 import random
-import time
 
 
 def confirma_pin(data):
@@ -296,6 +295,7 @@ class Ahorcado:
         self.idi = idi
         self.adivinadas = ""
         self.equivocadas = ""
+        self.intentos = 8
 
         with open("pal.json", "r") as f:
             load = json.load(fp=f)

@@ -7,6 +7,7 @@ import calendar
 # Dict que contiene tuplas con texto a utilizar en español e inglés.
 idi = {
     "pin": ("Ingrese su número PIN", "Enter your PIN number"),
+    "prender": ("Encender", "Turn on"),
     "exito": ("PIN válido", "Valid PIN"),
     "fallo": ("PIN invalido, pruebe de nuevo", "Invalid PIN, try again"),
     "opcion": ("Opciones", "Options"),
@@ -18,10 +19,10 @@ idi = {
     "cfpin": ("Fallo, el PIN no es válido o se perdió integridad de archivos",
               "Failure, the PIN is not valid or file integrity is lost"),
     "apagar": ("Apagar", "Turn off"),
-    "letra": ("Ingrese una letra", "Enter a letter"),
+    "letra": ("Ingrese su intento", "Enter your guess"),
     "restantes": ("Intentos Restantes:", "Attempts left:"),
     "contnombre": ("Nombre", "Name"),
-    "conttel": ("Teléfonos", "Telephone"),
+    "conttel": ("Teléfono", "Telephone"),
     "contcel": ("Celular", "Cellphone"),
     "contcorreo": ("Correo", "eMail"),
     "contfoto": ("Foto", "Photo"),
@@ -37,22 +38,18 @@ idi = {
     "readivina": ("Ya adivinó esa letra...", "Already guessed that letter..."),
     "aganador": ("¡FELICIDADES, HA GANADO!", "WINNER WINNER, CHICKEN DINNER!"),
     "aperdedor": ("Ha perdido", "You have lost"),
-    "greiniciar": ("Reiniciar Juego", "Restart Game")
-}
-
-colores = {
-    "activo": [],
-    "inactivo": []
+    "greiniciar": ("Reiniciar Juego", "Restart Game"),
+    "idselect": ("Seleccionar contacto", "Select contact"),
+    "cagregar": ("Agregar contacto", "Add contact"),
+    "correo": ("Correo:", "Email:"),
+    "foto": ("Foto:", "Photo:"),
+    "agregar": ("Agregar", "Add")
 }
 
 # Variable que determina el idioma actual, 0 = español / 1 = inglés
 k = 0
 
-# Variable que determina los colores de la interfaz según el estado de actividad, 0 = activo / 1 = inactivo
-c = 0
 
-
-# TODO intro animación
 class Comienzo:
     """
         Maneja el ingreso al sistema, aceptando una entrada que debe coincidir con el número de PIN.
@@ -62,8 +59,12 @@ class Comienzo:
         self.root = tk.Tk()
         self.root.title(string="MacroWatch")
         self.root.iconbitmap(bitmap="imagenes/watch.ico")
-        self.root.geometry(newGeometry="250x75+550+300")
+        self.root.geometry(newGeometry="250x120+550+300")
+        self.root.config(bg="#212121")
         self.intento = tk.StringVar()
+        self.respuesta = tk.StringVar()
+        self.resultado = tk.Label(self.root, textvariable=self.respuesta, bg="#212121", fg="#ffffff")
+        self.resultado.place(x=45, y=85)
         self.login()
         self.root.mainloop()
 
@@ -71,11 +72,14 @@ class Comienzo:
         """
            Crea la entrada donde el usuario puede ingresar su PIN
         """
-        login_info = tk.Label(self.root, text=idi["pin"][k])
-        login_info.pack()
+        login_info = tk.Label(self.root, text=idi["pin"][k], bg="#212121", fg="#ffffff")
+        login_info.place(x=65, y=0)
         contrasena = tk.Entry(self.root, textvariable=self.intento)
-        contrasena.pack()
+        contrasena.place(x=65, y=30)
         contrasena.bind("<Return>", self.confirma)
+        prender = tk.Button(self.root, text=idi["prender"][k], command=self.confirma, borderwidth=0,
+                            bg="#212121", fg="#33b5e5")
+        prender.place(x=97, y=60)
 
     def confirma(self, *args):
         """
@@ -85,15 +89,12 @@ class Comienzo:
         (en caso de que el usuario no la haya cambiado, será el de fábrica)
         Y determina si coincide, si es el caso, ingresa al menú principal.
         """
-        respuesta = tk.StringVar()
-        resutado = tk.Label(self.root, textvariable=respuesta)
-        resutado.pack()
         if WatchOs.confirma_pin(self.intento.get()):
-            respuesta.set(idi["exito"][k])
+            self.respuesta.set(idi["exito"][k])
             self.root.destroy()
             Controlador()
         else:
-            respuesta.set(idi["fallo"][k])
+            self.respuesta.set(idi["fallo"][k])
 
 
 class Controlador:
@@ -101,15 +102,17 @@ class Controlador:
     Crea y administra las frames de la aplicación, así como brindar el menu superior
     """
 
+    # noinspection PyPep8Naming
     def __init__(self):
         self.root = tk.Tk()
         self.root.geometry(newGeometry="600x500+400+100")
         self.root.title(string="MacroWatch")
         self.root.iconbitmap(bitmap="imagenes/watch.ico")
         self.root.resizable(width=False, height=False)
+
         menu = tk.Menu(master=self.root)
         self.root.config(menu=menu)
-        subMenu = tk.Menu(master=menu)
+        subMenu = tk.Menu(master=menu, bg="#212121", fg="#0099CC")
         menu.add_cascade(label=idi["opcion"][k], menu=subMenu)
         subMenu.add_command(label=idi["menup"][k], command=lambda: self.mostrar_app("Main"))
         subMenu.add_separator()
@@ -136,7 +139,7 @@ class Controlador:
             self.apps[nombre] = app
             app.place(relwidth=1, relheight=1)
 
-            self.cargar_apps(i+1)
+            self.cargar_apps(i + 1)
 
     def mostrar_app(self, nombre):
         """
@@ -229,7 +232,7 @@ class Main(tk.Frame):
         self.agenicon = ImageTk.PhotoImage(image2)
 
         self.agenda = tk.Button(self, command=lambda: self.controlador.mostrar_app("AgendaUI"), bg="#AF9483",
-                                  borderwidth=0)
+                                borderwidth=0)
         self.agenda.place(x=200, y=325)
         self.agenda.config(image=self.agenicon)
 
@@ -239,7 +242,7 @@ class Main(tk.Frame):
         self.calcicon = ImageTk.PhotoImage(image3)
 
         self.calculadora = tk.Button(self, command=lambda: self.controlador.mostrar_app("CalculadoraUI"), bg="#AF9483",
-                                  borderwidth=0)
+                                     borderwidth=0)
         self.calculadora.place(x=325, y=325)
         self.calculadora.config(image=self.calcicon)
 
@@ -304,7 +307,7 @@ class AhorcadoUI(tk.Frame):
         self.intentos.set(value=self.juego.intentos)
 
         self.pedido = tk.Label(self, text=idi["letra"][k], font=("Roboto", 12), fg="#2BBBAD", bg="#212121")
-        self.pedido.place(x=221, y=240)
+        self.pedido.place(x=218, y=240)
 
         self.restantes = tk.Label(self, text=idi["restantes"][k], font=("Roboto", 12), bg="#212121", fg="#0099CC")
         self.restantes.place(x=350, y=10)
@@ -331,6 +334,7 @@ class AhorcadoUI(tk.Frame):
     def adivina_labels(self, i, coord, result):
         """
         :param i: int, índice
+        :param coord: coordenada x donde se posiciona la label
         :param result: lista de Labels
         :return: result
         Crea labels que representan una incógnita de una letra según la cantidad de letras que la palabra actual
@@ -341,12 +345,12 @@ class AhorcadoUI(tk.Frame):
         else:
             result += [tk.Label(self, text="__", font=("Roboto", 20), fg="#ff4444", bg="#212121")]
             result[i].place(x=coord, y=150)
-            return self.adivina_labels(i+1, coord+50, result)
+            return self.adivina_labels(i + 1, coord + 50, result)
 
     def eliminar_secretas(self, i):
         if i < len(self.secretas):
             self.secretas[i].destroy()
-            self.eliminar_secretas(i+1)
+            self.eliminar_secretas(i + 1)
 
     def comprueba(self, *args):
         """
@@ -369,6 +373,8 @@ class AhorcadoUI(tk.Frame):
         elif letra == -1:
             self.intentos.set(self.intentos.get() - 1)
             self.feedback.set(idi["madivina"][k])
+            if self.intentos.get() <= 3:
+                self.mostrar_intentos.config(fg="#ffbb33")
             if not self.intentos.get():
                 self.terminar(False)
 
@@ -386,7 +392,7 @@ class AhorcadoUI(tk.Frame):
     def mostrar_aux(self, pos, letra, i):
         if i < len(pos):
             self.secretas[pos[i]].config(text=letra)
-            self.mostrar_aux(pos, letra, i+1)
+            self.mostrar_aux(pos, letra, i + 1)
 
     def terminar(self, resultado):
         """
@@ -453,41 +459,152 @@ class ContactosUI(tk.Frame):
 
     def __init__(self, master, controlador):
         tk.Frame.__init__(self, master)
-        self.right = tk.Frame(self)
-        self.right.grid(row=0, column=1)
-        self.left = tk.Frame(self)
-        self.left.grid(row=0, column=0)
+        self.config(bg="#212121")
+
         self.controlador = controlador
         self.contactos = WatchOs.Contactos()
-        self.oid = tk.Button(self.left, text=f"{idi['oabc'][k]}")
-        self.oid.grid(row=0, column=0, sticky="n", padx=60)
-        self.oabc = tk.Button(self.left, text=f"{idi['oid'][k]}")
-        self.oabc.grid(row=1, column=0, sticky="n", padx=60)
+
+        self.oid = tk.Button(self, text=f"{idi['oabc'][k]}", bg="#212121", fg="#00C851", borderwidth=0,
+                             font=("Roboto", 10), command=lambda: self.ordenar_abc())
+        self.oid.place(x=30, y=45)
+        self.oabc = tk.Button(self, text=f"{idi['oid'][k]}", bg="#212121", fg="#00C851", borderwidth=0,
+                              font=("Roboto", 10), command=lambda: self.ordenar_abc())
+        self.oabc.place(x=30, y=105)
+
+        self.elegir = tk.Button(self, text=idi["idselect"][k], bg="#212121", fg="#00C851", borderwidth=0,
+                                font=("Roboto", 10), command=lambda: self.seleccionar())
+        self.elegir.place(x=30, y=165)
+
+        self.agregar = tk.Button(self, text=idi["cagregar"][k], bg="#212121", fg="#00C851", borderwidth=0,
+                                 font=("Roboto", 10), command=lambda: self.crear())
+        self.agregar.place(x=30, y=250)
 
         self.botones = [None]
 
-        self.labels = self.display(0, [tk.Label(self.right, text=f"ID   {idi['contnombre'][k]}   {idi['conttel'][k]}   "
-                                                                 f"{idi['contcel'][k]}   {idi['contcorreo'][k]}   "
-                                                                 f"{idi['contfoto'][k]}"f"\n----------------"
-                                                                 f"---------------------------------"
-                                                                 f"--------------------", font=("Roboto", 10))])
+        self.cabeza = tk.Label(self, text=f"ID   {idi['contnombre'][k]}   {idi['conttel'][k]}   {idi['contcel'][k]}"
+                                          f"   {idi['contcorreo'][k]}   {idi['contfoto'][k]}",
+                               font=("Roboto", 10), bg="#212121", fg="#0099CC")
+
+        self.labels = self.display(0, [self.cabeza])
+
         self.mostrar(0, 0, self.labels)
 
-    def display(self, i, result):
+    def crear(self):
+        nombre = tk.StringVar()
+        nombre1 = tk.Label(self, text="ID:", bg="#212121", fg="#8e24aa")
+        nombre1.place(x=20, y=280)
+        nombre2 = tk.Entry(self, textvariable=nombre, bg="#212121", fg="#ffffff")
+        nombre2.place(x=65, y=280)
+
+        tel = tk.StringVar()
+        tel1 = tk.Label(self, text="Tel:", bg="#212121", fg="#8e24aa")
+        tel1.place(x=20, y=305)
+        tel2 = tk.Entry(self, textvariable=tel, bg="#212121", fg="#ffffff")
+        tel2.place(x=65, y=305)
+
+        cel = tk.StringVar()
+        cel1 = tk.Label(self, text="Cel:", bg="#212121", fg="#8e24aa")
+        cel1.place(x=20, y=330)
+        cel2 = tk.Entry(self, textvariable=cel, bg="#212121", fg="#ffffff")
+        cel2.place(x=65, y=330)
+
+        correo = tk.StringVar()
+        correo1 = tk.Label(self, text=idi["correo"][k], bg="#212121", fg="#8e24aa")
+        correo1.place(x=20, y=355)
+        correo2 = tk.Entry(self, textvariable=correo, bg="#212121", fg="#ffffff")
+        correo2.place(x=65, y=355)
+
+        foto = tk.StringVar()
+        foto1 = tk.Label(self, text=idi["foto"][k], bg="#212121", fg="#8e24aa")
+        foto1.place(x=20, y=380)
+        foto2 = tk.Entry(self, textvariable=foto, bg="#212121", fg="#ffffff")
+        foto2.place(x=65, y=380)
+
+        enviar = tk.Button(self, text=idi["agregar"][k],
+                           command=lambda: self.agregar_contacto(nombre.get(), tel.get(), cel.get(),
+                                                                 correo.get(), foto.get()),
+                           bg="#212121", fg="#ffffff")
+
+        enviar.place(x=90, y=410)
+
+    def agregar_contacto(self, nombre, tel, cel, correo, foto):
+        if nombre is not None and tel is not None and cel is not None and correo is not None and foto is not None:
+            self.contactos.crear(nombre=nombre, telefonos=tel, celular=cel, correo=correo, foto=foto)
+            self.destruir(0)
+            self.botones = [None]
+            self.labels = self.display(0, [tk.Label(self, text=f"ID   {idi['contnombre'][k]}   {idi['conttel'][k]}"
+                                                               f"   {idi['contcel'][k]}   {idi['contcorreo'][k]}"
+                                                               f"   {idi['contfoto'][k]}",
+                                                    font=("Roboto", 10), bg="#212121", fg="#0099CC")])
+            self.mostrar(0, 0, self.labels)
+
+    def ordenar_abc(self):
+        # TODO
         """
+        Ordena los contactos por su identificación
+        """
+        self.destruir(0)
+        self.botones = [None]
+        self.labels = self.display(0, [tk.Label(self, text=f"ID   {idi['contnombre'][k]}   {idi['conttel'][k]}"
+                                                           f"   {idi['contcel'][k]}   {idi['contcorreo'][k]}"
+                                                           f"   {idi['contfoto'][k]}",
+                                                font=("Roboto", 10), bg="#212121", fg="#0099CC")],
+                                   abc=self.contactos.ordenar_abc())
+        self.mostrar(0, 0, self.labels)
+
+    def seleccionar(self):
+        """
+        Provee entry para poder seleccionar un solo contacto
+        """
+        cual1 = tk.Label(self, text="ID:", bg="#212121", fg="#ba68c8", font=("Roboto", 10))
+        cual1.place(x=20, y=200)
+        identidad = tk.IntVar()
+        cual2 = tk.Entry(self, textvariable=identidad, bg="#00695c", fg="#ffffff", borderwidth=0, font=("Roboto", 10))
+        cual2.bind(sequence="<Return>", func=lambda x: self.escoger(identidad.get(), cual1, cual2))
+        cual2.place(x=45, y=200)
+
+    def escoger(self, identidad, label, entry):
+        """
+        :param identidad: identidad del contacto que se escogió
+        :param label: label de seleccionar para borrar
+        :param entry: entry de seleccionar para borrar
+        Al escojer un usuario lo aisla y muestra
+        """
+        if isinstance(identidad, int) and identidad < len(self.contactos.contacts):
+            label.destroy()
+            entry.destroy()
+            self.destruir(0)
+            cont = self.contactos.contacts[identidad]
+            seleccionado1 = tk.Label(self, text=f"{cont.identidad}   {cont.nombre}   "
+                                                f"{cont.telefonos}   {cont.celular}   {cont.correo}   "
+                                                f"{cont.foto}", font=("Roboto", 10), bg="#212121", fg="#ffffff")
+            seleccionado1.place(x=220, y=30)
+
+            seleccionado2 = tk.Button(self, text=f"{idi['delcont'][k]}", command=lambda: self.eliminar(identidad),
+                                      font=("Roboto", 8), bg="#212121", fg="#ff4444", borderwidth=0)
+
+            seleccionado2.place(x=220, y=60)
+
+    def display(self, i, result, abc=None):
+        """
+        :param abc: lista, contactos ordenados por el abecedario. -opcional-
         :param i:
         :param result:
         :return: llena listas con las widgets necesarias para mostrar.
         """
-        conts = self.contactos.contacts
-        if i < len(self.contactos.contacts):
-            result += [tk.Label(self.right, text=f"{conts[i].identidad}   {conts[i].nombre}   "
-                                                 f"{conts[i].telefonos}   {conts[i].celular}   {conts[i].correo}   "
-                                                 f"{conts[i].foto}", font=("Roboto", 10))]
+        if not abc:
+            conts = self.contactos.contacts
+        else:
+            conts = abc
+        if i < len(conts):
+            result += [tk.Label(self, text=f"{conts[i].identidad}   {conts[i].nombre}   "
+                                           f"{conts[i].telefonos}   {conts[i].celular}   {conts[i].correo}   "
+                                           f"{conts[i].foto}", font=("Roboto", 10), bg="#212121", fg="#ffffff")]
 
             self.botones += [
-                tk.Button(self.right, text=f"{idi['delcont'][k]}", command=lambda: self.contactos.eliminar(i),
-                          font=("Roboto", 8))]
+                tk.Button(self, text=f"{idi['delcont'][k]}", command=lambda: self.eliminar(i),
+                          font=("Roboto", 8), bg="#212121", fg="#ff4444", borderwidth=0)]
+
             return self.display(i + 1, result)
         else:
             return result
@@ -500,12 +617,33 @@ class ContactosUI(tk.Frame):
         Muestra los contactos en la interfaz
         """
         if 0 < i < len(labels):
-            labels[i].grid(row=j, column=0, pady=0, sticky="W")
-            self.botones[i].grid(row=j + 1, column=0, pady=10, sticky="W")
-            self.mostrar(i + 1, j + 2, labels)
+            labels[i].place(x=220, y=j)
+            self.botones[i].place(x=220, y=j + 30)
+            self.mostrar(i + 1, j + 70, labels)
         elif i < len(labels):
-            labels[i].grid(row=j, column=0, pady=0, sticky="W")
-            self.mostrar(i + 1, j + 2, labels)
+            labels[i].place(x=220, y=j)
+            self.mostrar(i + 1, j + 30, labels)
+
+    def eliminar(self, i):
+        """
+        :param i: int, identidad del contacto a eliminar
+        Elimina un solo usuario y se encarga de cargar de nuevo los conactos
+        """
+        self.contactos.eliminar(i)
+        self.destruir(0)
+        self.botones = [None]
+        self.labels = self.display(0, [tk.Label(self, text=f"ID   {idi['contnombre'][k]}   {idi['conttel'][k]}"
+                                                           f"   {idi['contcel'][k]}   {idi['contcorreo'][k]}"
+                                                           f"   {idi['contfoto'][k]}",
+                                                font=("Roboto", 10), bg="#212121", fg="#0099CC")])
+        self.mostrar(0, 0, self.labels)
+
+    def destruir(self, i):
+        if i < len(self.labels):
+            self.labels[i].destroy()
+            if i != 0 and i < len(self.botones):
+                self.botones[i].destroy()
+            self.destruir(i + 1)
 
 
 class AgendaUI(tk.Frame):

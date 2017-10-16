@@ -61,9 +61,8 @@ class Contactos:
 
             return self.cargar(i+1, result)
 
-    def crear(self, identidad, nombre, telefonos, celular, correo, foto):
+    def crear(self, nombre, telefonos, celular, correo, foto):
         """
-        :param identidad: int
         :param nombre: str
         :param telefonos: array de ints
         :param celular: int
@@ -73,7 +72,7 @@ class Contactos:
 
         Agrega un usuario a la lista de contactos
         """
-        self.contacts += [Persona(identidad, nombre, telefonos, celular, correo, foto)]
+        self.contacts += [Persona(len(self.contacts), nombre, telefonos, celular, correo, foto)]
         return True
 
     def eliminar(self, identidad):
@@ -112,9 +111,9 @@ class Contactos:
         Genera un lista copia de contactos, el cual se ordena con Selection Sort según el modo especificado.
         """
         if modo == "ID":
-            self.contacts = self.ordenar_id()
+            return self.ordenar_id()
         elif modo == "Alfabético" or modo == "Alphabetical":
-            self.contacts = self.ordenar_abc()
+            return self.ordenar_abc()
 
     def ordenar_id(self):
         """
@@ -135,13 +134,34 @@ class Contactos:
             result += [self.contacts[j]]
             return self.ordenar_id_aux(i+1, copia[0:j]+copia[j+1:len(copia)], result)
 
+    def ordenar_abc(self):
+        return self.ordenar_abc_aux(0, [])
+
+    def ordenar_abc_aux(self, i, result):
+        if i >= len(self.contacts):
+            return result
+        else:
+            result += [self.get_menor(i, self.contacts[i])]
+            return self.ordenar_abc_aux(i+1, result, self.contacts)
+
+    def get_menor(self, i, result, copy):
+        if i >= len(copy):
+            return result
+        elif result.nombre[0] <= self.contacts[i].nombre[0]:
+            return self.get_menor(i+1, result, copy)
+        elif result.nombre[0] > self.contacts[i].nombre[0]:
+            return self.get_menor(i+1, self.contacts[i])
+
+    """
     def get_index_min(self, temp, i, result):
-        if i == len(temp):
+        print(i)
+        if i >= len(temp):
             return result
         elif int(temp[i].identidad) < result:
-            return self.get_index_min(temp, i+1, temp[i])
+            return self.get_index_min(temp, i+1, temp[i].identidad)
         else:
             return self.get_index_min(temp, i+1, result)
+    """
 
     def seleccionar(self, identidad):
         return self.seleccionar_aux(int(identidad), 0)
@@ -365,10 +385,8 @@ class Ahorcado:
             result += [letra]
             return self.cantidad_letras(i+1, letra, pos, result)
 
-    # TODO: Hacer en shell para que no pueda enviar "palabra" vacío!!!
     def comprobar_palabra(self):
         """
-        :param palabra: string
         :return: bool que indica si el usuario a logrado adivinar todas las letras
         de la palabra actual(self.actual).
         """
@@ -404,7 +422,6 @@ def cambiar_pin(nuevo_pin):
             return True
         else:
             return False
-    # TODO: Especificar except.
     except:
         return False
 

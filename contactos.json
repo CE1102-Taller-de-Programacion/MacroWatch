@@ -1,35 +1,35 @@
 {
   "0": {
     "id": 0 ,
-    "nombre": "jeff",
-    "telefonos": [999,666],
+    "nombre": "Jeff",
+    "telefonos": 999,
     "celular": 888,
     "correo": "f@gmail.com",
     "foto": "jeff.jpg"
   },
    "1": {
     "id": 1,
-    "nombre": "david",
-    "telefonos": [64253,62438],
+    "nombre": "David",
+    "telefonos": 64253,
     "celular": 8567,
     "correo": "d@gmail.com",
     "foto": "david.jpg"
   },
    "2": {
     "id": 2,
-    "nombre": "richomond",
-    "telefonos": [32048,34022],
+    "nombre": "Richomond",
+    "telefonos": 34022,
     "celular": 7980,
     "correo": "r@gmail.com",
     "foto": "rich.jpg"
   },
    "3": {
     "id": 3,
-    "nombre": "jeff",
-    "telefonos": [999,666],
+    "nombre": "Juan",
+    "telefonos": 999,
     "celular": 888,
-    "correo": "f@gmail.com",
-    "foto": "jeff.jpg"
+    "correo": "j@gmail.com",
+    "foto": "juan.jpg"
   },
   "4": {
     "id": 4,

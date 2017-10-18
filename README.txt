@@ -2,11 +2,11 @@ MacroWatch creado por David Azofeifa
 
 Requerimientos obligatorios
 
-- Utilizar python >=3.6
+- Utilizar una versiÃ³n de Python mayor o igual a la 3.6
 
-- Biblioteca Tkinter => pip install tkinter --verbose (verbose provee mayor informacións sobre la operación)
+- Biblioteca Tkinter => pip install tkinter --verbose (verbose provee mayor informaciÃ³ns sobre la operaciÃ³n)
 
-- Biblioteca Pillow => pip install Pillow
+- Biblioteca Pillow => pip install Pillow --verbose
 
 Bibliotecas requeridas nativas de python:
 
@@ -14,3 +14,6 @@ Bibliotecas requeridas nativas de python:
 - random
 - calendar
 - datetime
+- itertools
+- threading
+- parser

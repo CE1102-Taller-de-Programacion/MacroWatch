@@ -2,7 +2,10 @@ import WatchOs
 import tkinter as tk
 from PIL import ImageTk
 from PIL import Image
-import calendar
+import threading
+from itertools import count
+import parser
+
 
 # Dict que contiene tuplas con texto a utilizar en español e inglés.
 idi = {
@@ -51,7 +54,8 @@ idi = {
     "ahora": ("Cambiar hora", "Change time"),
     "aincluir": ("Incluir evento", "Include event"),
     "ganadas": ("Partidas Ganadas:", "Won Matches:"),
-    "regresar": ("Regresar", "Go back")
+    "regresar": ("Regresar", "Go back"),
+    "descansa": ("Descansador", "Screen Saver")
 }
 
 # Variable que determina el idioma actual, 0 = español / 1 = inglés
@@ -126,11 +130,15 @@ class Controlador:
         subMenu.add_separator()
         subMenu.add_command(label=idi["idioma"][z], command=self.cambiar_idioma)
         subMenu.add_command(label=idi["pcambio"][z], command=self.Cambio)
+        subMenu.add_separator()
+        subMenu.add_command(label=idi["descansa"][z], command=lambda: self.mostrar_app("Descansador"))
         subMenu.add_command(label=idi["apagar"][z], command=self.apagar)
+
+        self.clases = [Main, AhorcadoUI, ContactosUI, AgendaUI, CalculadoraUI, Descansador]
 
         self.apps = {}
 
-        self.clases = [Main, AhorcadoUI, ContactosUI, AgendaUI, CalculadoraUI]
+        self.last_app = "Main"
 
         self.cargar_apps(0)
 
@@ -154,6 +162,8 @@ class Controlador:
         :param nombre: str, nombre de la app que se quiere mostrar en la interfaz.
         Alza la frame que sea desea mostrar por encima del resto.
         """
+        if nombre != "Descansador":
+            self.last_app = nombre
         app = self.apps[nombre]
         app.tkraise()
 
@@ -164,7 +174,6 @@ class Controlador:
         self.apps["AgendaUI"].actividades.save()
 
     def apagar(self):
-        # TODO outro animación
         """
         Llama las funciones que se encargan de guardar los datos y apagar el sistema.
         """
@@ -588,6 +597,9 @@ class ContactosUI(tk.Frame):
         self.mostrar(i=0, j=20, labels=self.labels)
 
     def ordenar_id(self):
+        """
+        :return: Ordena los contactos por id
+        """
         self.destruir(i=1)
         self.botones = [None]
         self.labels = self.display(i=0, result=[tk.Label(self, text=f"ID   {idi['contnombre'][z]}   {idi['conttel'][z]}"
@@ -796,7 +808,7 @@ class AgendaUI(tk.Frame):
             self.labels = self.display(0, [tk.Label(self, text=f"ID   {idi['agenfecha'][z]}   {idi['agenhora'][z]}   "
                                                                f"{idi['agenevento'][z]}", font=("Roboto", 12),
                                                     bg="#212121", fg="#4285F4")], labels=self.actividades.agenda)
-            self.mostrar(0, 0, self.labels)
+            self.mostrar(0, 20, self.labels)
 
     def seleccionar(self):
         """
@@ -935,10 +947,222 @@ class AgendaUI(tk.Frame):
 
 
 class CalculadoraUI(tk.Frame):
+    """
+    Calculadora y sus operaciones
+    - Modificada del código de Joshua León Czech -
+    """
     def __init__(self, master, controlador):
         tk.Frame.__init__(self, master)
-        self.temp = tk.Label(self, text="WIP")
-        self.temp.pack()
+        self.config(bg="#212121")
+        self.controlador = controlador
+
+        self.i = 0
+        self.columnconfigure(0, pad=3)
+        self.columnconfigure(1, pad=3)
+        self.columnconfigure(2, pad=3)
+        self.columnconfigure(3, pad=3)
+        self.columnconfigure(4, pad=3)
+
+        self.rowconfigure(0, pad=3)
+        self.rowconfigure(1, pad=3)
+        self.rowconfigure(2, pad=3)
+        self.rowconfigure(3, pad=3)
+
+        self.display = tk.Entry(self, font=("Roboto", 30), bg="#212121", fg="#ffffff")
+        self.display.grid(row=1, columnspan=10, sticky=tk.W + tk.E)
+
+        one = tk.Button(self, text="1", command=lambda: self.get_variables(1), font=("Roboto", 42),
+                        bg="#212121", fg="#0099CC", borderwidth=0)
+        one.grid(row=2, column=0)
+        two = tk.Button(self, text="2", command=lambda: self.get_variables(2), font=("Roboto", 42),
+                        bg="#212121", fg="#0099CC", borderwidth=0)
+        two.grid(row=2, column=1)
+        three = tk.Button(self, text="3", command=lambda: self.get_variables(3), font=("Roboto", 42),
+                          bg="#212121", fg="#0099CC", borderwidth=0)
+        three.grid(row=2, column=2)
+
+        four = tk.Button(self, text="4", command=lambda: self.get_variables(4), font=("Roboto", 42),
+                         bg="#212121", fg="#0099CC", borderwidth=0)
+        four.grid(row=3, column=0)
+        five = tk.Button(self, text="5", command=lambda: self.get_variables(5), font=("Roboto", 42),
+                         bg="#212121", fg="#0099CC", borderwidth=0)
+        five.grid(row=3, column=1)
+        six = tk.Button(self, text="6", command=lambda: self.get_variables(6), font=("Roboto", 42),
+                        bg="#212121", fg="#0099CC", borderwidth=0)
+        six.grid(row=3, column=2)
+
+        seven = tk.Button(self, text="7", command=lambda: self.get_variables(7), font=("Roboto", 42),
+                          bg="#212121", fg="#0099CC", borderwidth=0)
+        seven.grid(row=4, column=0)
+        eight = tk.Button(self, text="8", command=lambda: self.get_variables(8), font=("Roboto", 42),
+                          bg="#212121", fg="#0099CC", borderwidth=0)
+        eight.grid(row=4, column=1)
+        nine = tk.Button(self, text="9", command=lambda: self.get_variables(9), font=("Roboto", 42),
+                         bg="#212121", fg="#0099CC", borderwidth=0)
+        nine.grid(row=4, column=2)
+
+        cls = tk.Button(self, text="AC", command=self.clear_all, font=("Roboto", 42),
+                        bg="#212121", fg="#ff4444", borderwidth=0)
+        cls.grid(row=5, column=0)
+        zero = tk.Button(self, text="0", command=lambda: self.get_variables(0), font=("Roboto", 42),
+                         bg="#212121", fg="#0099CC", borderwidth=0)
+        zero.grid(row=5, column=1)
+        result = tk.Button(self, text="=", command=self.calculate, font=("Roboto", 42),
+                           bg="#212121", fg="#ff4444", borderwidth=0)
+        result.grid(row=5, column=2)
+        plus = tk.Button(self, text="+", command=lambda: self.get_operation("+"), font=("Roboto", 42),
+                         bg="#212121", fg="#00C851", borderwidth=0)
+        plus.grid(row=2, column=3)
+        minus = tk.Button(self, text="-", command=lambda: self.get_operation("-"), font=("Roboto", 42),
+                          bg="#212121", fg="#00C851", borderwidth=0)
+        minus.grid(row=3, column=3)
+        multiply = tk.Button(self, text="*", command=lambda: self.get_operation("*"), font=("Roboto", 42),
+                             bg="#212121", fg="#00C851", borderwidth=0)
+        multiply.grid(row=4, column=3)
+        divide = tk.Button(self, text="/", command=lambda: self.get_operation("/"), font=("Roboto", 42),
+                           bg="#212121", fg="#00C851", borderwidth=0)
+        divide.grid(row=5, column=3)
+
+        pi = tk.Button(self, text="pi", command=lambda: self.get_operation("*3.14"), font=("Roboto", 42),
+                       bg="#212121", fg="#ffbb33", borderwidth=0)
+        pi.grid(row=2, column=4)
+        modulo = tk.Button(self, text="%", command=lambda: self.get_operation("%"), font=("Roboto", 42),
+                           bg="#212121", fg="#00C851", borderwidth=0)
+        modulo.grid(row=3, column=4)
+        left_bracket = tk.Button(self, text="(", command=lambda: self.get_operation("("), font=("Roboto", 42),
+                                 bg="#212121", fg="#00C851", borderwidth=0)
+        left_bracket.grid(row=4, column=4)
+        exp = tk.Button(self, text="exp", command=lambda: self.get_operation("**"), font=("Roboto", 40),
+                        bg="#212121", fg="#00C851", borderwidth=0)
+        exp.grid(row=5, column=4)
+
+        undo_button = tk.Button(self, text="<", command=self.undo, font=("Roboto", 42),
+                                bg="#212121", fg="#ff4444", borderwidth=0)
+        undo_button.grid(row=2, column=5)
+        fact = tk.Button(self, text="x!", command=self.factorial, font=("Roboto", 42),
+                         bg="#212121", fg="#00C851", borderwidth=0)
+        fact.grid(row=3, column=5)
+        right_bracket = tk.Button(self, text=")", command=lambda: self.get_operation(")"), font=("Roboto", 42),
+                                  bg="#212121", fg="#00C851", borderwidth=0)
+        right_bracket.grid(row=4, column=5)
+        square = tk.Button(self, text="^2", command=lambda: self.get_operation("**2"), font=("Roboto", 40),
+                           bg="#212121", fg="#00C851", borderwidth=0)
+        square.grid(row=5, column=5)
+
+    def factorial(self):
+        # Calcula el factorial del numero ingresado
+        whole_string = self.display.get()
+        number = int(whole_string)
+        fact = 1
+        counter = number
+        try:
+            while counter > 0:
+                fact = fact * counter
+                counter -= 1
+            self.clear_all()
+            self.display.insert(0, fact)
+        except Exception:
+            self.clear_all()
+            self.display.insert(0, "Error")
+
+    def clear_all(self):
+        # Quita cualquier cosa ingresada en la entry box
+        self.display.delete(0, tk.END)
+
+    def get_variables(self, num):
+        # Obtiene los operandos que ingreso el usuario y los pone dentro de la entry widget
+        self.display.insert(self.i, num)
+        self.i += 1
+
+    def get_operation(self, operator):
+        # Obtiene el operando para operacion
+        length = len(operator)
+        self.display.insert(self.i, operator)
+        self.i += length
+
+    def undo(self):
+        # Remueve el ultimo digito que se puso en el entry box
+        whole_string = self.display.get()
+        if len(whole_string):
+            new_string = whole_string[:-1]
+            self.clear_all()
+            self.display.insert(0, new_string)
+        else:
+            self.clear_all()
+            self.display.insert(0, "Error, press AC")
+
+    def calculate(self):
+        # Evalua la expresion y la calcula
+        whole_string = self.display.get()
+        try:
+            formulae = parser.expr(whole_string).compile()
+            result = eval(formulae)
+            self.clear_all()
+            self.display.insert(0, result)
+        except Exception:
+            self.clear_all()
+            self.display.insert(0, "Error!")
+
+
+
+class Descansador(tk.Frame):
+    """
+    Interfaz donde se muestra y reproduce la animación del descansador
+    """
+    def __init__(self, master, controlador):
+        tk.Frame.__init__(self, master)
+        self.config(bg="#212121")
+        self.controlador = controlador
+
+        self.hilo = threading.Thread(target=self.reproducir())
+        self.hilo.start()
+
+    def reproducir(self):
+        animacion = ImageLabel(master=self)
+        animacion.bind(sequence="<Button-1>",
+                            func=lambda x: self.controlador.mostrar_app(self.controlador.last_app))
+        animacion.pack()
+        animacion.load(im="animacion/descansador.gif")
+
+
+class ImageLabel(tk.Label):
+    """
+    objeto que permite la reproducción de gifs
+    Crédito: https://stackoverflow.com/questions/43770847/play-an-animated-gif-in-python-with-tkinter
+    """
+    def load(self, im):
+        if isinstance(im, str):
+            im = Image.open(im)
+        self.loc = 0
+        self.frames = []
+
+        try:
+            for i in count(1):
+                self.frames.append(ImageTk.PhotoImage(im.copy()))
+                im.seek(i)
+        except EOFError:
+            pass
+
+        try:
+            self.delay = im.info['duration']
+        except:
+            self.delay = 100
+
+        if len(self.frames) == 1:
+            self.config(image=self.frames[0])
+        else:
+            self.next_frame()
+
+    def unload(self):
+        self.config(image=None)
+        self.frames = None
+
+    def next_frame(self):
+        if self.frames:
+            self.loc += 1
+            self.loc %= len(self.frames)
+            self.config(image=self.frames[self.loc])
+            self.after(self.delay, self.next_frame)
 
 
 if __name__ == "__main__":

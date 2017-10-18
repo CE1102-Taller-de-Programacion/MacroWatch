@@ -2,11 +2,9 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="38bef5a7-583e-45ca-870a-dc73f5f4e501" name="Default" comment="">
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/dictionaries/DAvid.xml" afterPath="$PROJECT_DIR$/.idea/dictionaries/DAvid.xml" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/WatchOs.py" afterPath="$PROJECT_DIR$/WatchOs.py" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/WatchShell.py" afterPath="$PROJECT_DIR$/WatchShell.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/agenda.json" afterPath="$PROJECT_DIR$/agenda.json" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/config.json" afterPath="$PROJECT_DIR$/config.json" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/contactos.json" afterPath="$PROJECT_DIR$/contactos.json" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/pal.json" afterPath="$PROJECT_DIR$/pal.json" />
@@ -20,7 +18,7 @@
   </component>
   <component name="CoverageDataManager">
     <SUITE FILE_PATH="coverage/SmartwatchSim$WatchOs.coverage" NAME="WatchOs Coverage Results" MODIFIED="1508050619629" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
-    <SUITE FILE_PATH="coverage/SmartwatchSim$WatchShell.coverage" NAME="WatchShell Coverage Results" MODIFIED="1508351533605" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
+    <SUITE FILE_PATH="coverage/SmartwatchSim$WatchShell.coverage" NAME="WatchShell Coverage Results" MODIFIED="1508359152767" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
   </component>
   <component name="DatabaseView">
     <option name="SHOW_INTERMEDIATE" value="true" />
@@ -38,8 +36,8 @@
       <file leaf-file-name="WatchOs.py" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/WatchOs.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="169">
-              <caret line="291" column="23" lean-forward="false" selection-start-line="291" selection-start-column="23" selection-end-line="291" selection-end-column="32" />
+            <state relative-caret-position="680">
+              <caret line="548" column="53" lean-forward="false" selection-start-line="548" selection-start-column="53" selection-end-line="548" selection-end-column="53" />
               <folding>
                 <element signature="e#0#11#0" expanded="true" />
               </folding>
@@ -50,8 +48,8 @@
       <file leaf-file-name="WatchShell.py" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/WatchShell.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="110">
-              <caret line="936" column="11" lean-forward="false" selection-start-line="936" selection-start-column="6" selection-end-line="936" selection-end-column="11" />
+            <state relative-caret-position="120">
+              <caret line="6" column="13" lean-forward="true" selection-start-line="6" selection-start-column="13" selection-end-line="6" selection-end-column="13" />
               <folding>
                 <element signature="e#0#14#0" expanded="true" />
               </folding>
@@ -83,7 +81,7 @@
         <entry file="file://$PROJECT_DIR$/contactos.json">
           <provider selected="true" editor-type-id="text-editor">
             <state relative-caret-position="0">
-              <caret line="0" column="468" lean-forward="false" selection-start-line="0" selection-start-column="468" selection-end-line="0" selection-end-column="468" />
+              <caret line="0" column="486" lean-forward="false" selection-start-line="0" selection-start-column="486" selection-end-line="0" selection-end-column="486" />
               <folding />
             </state>
           </provider>
@@ -92,7 +90,7 @@
       <file leaf-file-name="agenda.json" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/agenda.json">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="0">
+            <state relative-caret-position="20">
               <caret line="0" column="213" lean-forward="false" selection-start-line="0" selection-start-column="213" selection-end-line="0" selection-end-column="213" />
               <folding />
             </state>
@@ -111,11 +109,6 @@
   </component>
   <component name="FindInProjectRecents">
     <findStrings>
-      <find>aganador</find>
-      <find>self.entrada</find>
-      <find>feli</find>
-      <find>sub</find>
-      <find>oid</find>
       <find>elegir</find>
       <find>cagregar</find>
       <find>intentos</find>
@@ -139,8 +132,13 @@
       <find>idioma</find>
       <find>agendaui</find>
       <find>inclu</find>
-      <find>todo</find>
       <find>ahorcadoui</find>
+      <find>apps</find>
+      <find>cal</find>
+      <find>calcula</find>
+      <find>i</find>
+      <find>20</find>
+      <find>todo</find>
     </findStrings>
   </component>
   <component name="Git.Settings">
@@ -186,10 +184,13 @@
           <State>
             <id>Python</id>
           </State>
+          <State>
+            <id>Spelling</id>
+          </State>
         </expanded-state>
         <selected-state>
           <State>
-            <id>PyExceptClausesOrderInspection</id>
+            <id>SpellCheckingInspection</id>
           </State>
         </selected-state>
       </profile-state>
@@ -686,10 +687,10 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/pal.json">
+    <entry file="file://$PROJECT_DIR$/contactos.json">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="0">
-          <caret line="0" column="124" lean-forward="false" selection-start-line="0" selection-start-column="124" selection-end-line="0" selection-end-column="124" />
+          <caret line="0" column="486" lean-forward="false" selection-start-line="0" selection-start-column="486" selection-end-line="0" selection-end-column="486" />
           <folding />
         </state>
       </provider>
@@ -702,26 +703,26 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/agenda.json">
+    <entry file="file://$PROJECT_DIR$/pal.json">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="0">
-          <caret line="0" column="213" lean-forward="false" selection-start-line="0" selection-start-column="213" selection-end-line="0" selection-end-column="213" />
+          <caret line="0" column="124" lean-forward="false" selection-start-line="0" selection-start-column="124" selection-end-line="0" selection-end-column="124" />
           <folding />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/contactos.json">
+    <entry file="file://$PROJECT_DIR$/agenda.json">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="0">
-          <caret line="0" column="468" lean-forward="false" selection-start-line="0" selection-start-column="468" selection-end-line="0" selection-end-column="468" />
+        <state relative-caret-position="20">
+          <caret line="0" column="213" lean-forward="false" selection-start-line="0" selection-start-column="213" selection-end-line="0" selection-end-column="213" />
           <folding />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/WatchOs.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="169">
-          <caret line="291" column="23" lean-forward="false" selection-start-line="291" selection-start-column="23" selection-end-line="291" selection-end-column="32" />
+        <state relative-caret-position="680">
+          <caret line="548" column="53" lean-forward="false" selection-start-line="548" selection-start-column="53" selection-end-line="548" selection-end-column="53" />
           <folding>
             <element signature="e#0#11#0" expanded="true" />
           </folding>
@@ -730,8 +731,8 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/WatchShell.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="110">
-          <caret line="936" column="11" lean-forward="false" selection-start-line="936" selection-start-column="6" selection-end-line="936" selection-end-column="11" />
+        <state relative-caret-position="120">
+          <caret line="6" column="13" lean-forward="true" selection-start-line="6" selection-start-column="13" selection-end-line="6" selection-end-column="13" />
           <folding>
             <element signature="e#0#14#0" expanded="true" />
           </folding>

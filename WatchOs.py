@@ -144,6 +144,12 @@ class Contactos:
                 return self.ordenar_id_aux(copia[1:], result)
 
     def get_menor_id(self, i, j, contactos):
+        """
+        :param i: indice de menor
+        :param j: indice de posible mayor
+        :param contactos: lista de personas
+        :return: contacto con menor identidad en contactos
+        """
         if j >= len(contactos):
             return contactos[i]
         elif contactos[i].identidad < contactos[j].identidad:
@@ -152,9 +158,17 @@ class Contactos:
             return self.get_menor_id(j, j+1, contactos)
 
     def ordenar_abc(self):
+        """
+        :return: Lista con contactos ordenados alfabéticamente
+        """
         return self.ordenar_abc_aux(self.contacts, [])
 
     def ordenar_abc_aux(self, copia, result):
+        """
+        :param copia: copia de lista contactos
+        :param result:
+        :return: lista con contactos ordenado alfabéticamente
+        """
         if not copia:
             return result
         else:
@@ -167,6 +181,13 @@ class Contactos:
                 return self.ordenar_abc_aux(copia[1:], result)
 
     def get_menor_abc(self, i, j, k, contactos):
+        """
+        :param i: indice de mejor
+        :param j: indice de posible mayor
+        :param k: indice para letra de comparación
+        :param contactos: lista de contactos
+        :return: contacto con el nombre menor en el alfabeto
+        """
         if j >= len(contactos):
             return contactos[i]
         elif contactos[i].nombre[k] < contactos[j].nombre[k]:
@@ -177,9 +198,18 @@ class Contactos:
             return self.get_menor_abc(i, j, k+1, contactos)
 
     def seleccionar(self, identidad):
+        """
+        :param identidad: identidad del contacto a seleccionar
+        :return: contacto con la identidad correspondiente
+        """
         return self.seleccionar_aux(int(identidad), 0)
 
     def seleccionar_aux(self, identidad, i):
+        """
+        :param identidad: identidad del contacto a seleccionar
+        :param i: indice para atraversar self.contacts
+        :return: contacto con la identidad correspindiente
+        """
         if i == len(self.contacts):
             return False
         elif self.contacts[i].identidad == identidad:
@@ -219,52 +249,15 @@ class Contactos:
             return self.lista_dictionary(i+1, result)
 
 
-# Kinda done
-class Calculadora:
-    def suma(self, num_array):
-        return self.suma_aux(num_array, 0)
-
-    def suma_aux(self, num_array, result):
-        if not num_array:
-            return result
-        else:
-            result += int(num_array[0])
-            return self.suma_aux(num_array[1:], result)
-
-    def resta(self, num_array):
-        return self.resta_aux(num_array, 0)
-
-    def resta_aux(self, num_array, result):
-        if not num_array:
-            return result
-        else:
-            result -= int(num_array[0])
-            return self.resta_aux(num_array[1:], result)
-
-    def producto(self, num_array):
-        return self.producto_aux(num_array, 0)
-
-    def producto_aux(self, num_array, result):
-        if not num_array:
-            return result
-        else:
-            result *= int(num_array[0])
-            return self.producto_aux(num_array[1:], result)
-
-    def division(self, num_array):
-        return self.division_aux(num_array, 0)
-
-    def division_aux(self, num_array, result):
-        if not num_array:
-            return result
-        else:
-            result += int(num_array[0])
-            return self.division_aux(num_array[1:], result)
-
-
-# DONE
 class Actividad:
     def __init__(self, identidad, fecha, hora, info):
+        """
+        :param identidad: identidad de la actividad particular
+        :param fecha: fecha del evento
+        :param hora: hora del evento
+        :param info: descripción del evento
+        Objeto que guarda un evento particular.
+        """
         self.identidad = identidad
         self.fecha = fecha
         self.hora = hora
@@ -273,11 +266,20 @@ class Actividad:
 
 class Agenda:
     def __init__(self):
+        """
+        Carga actividades en disco
+        """
         with open("agenda.json", "r") as f:
             self.agenda = json.load(fp=f)
             self.agenda = self.cargar(0, [])
 
     def cargar(self, i, result):
+        """
+        :param i:
+        :param result:
+        :return: lista de actividades
+        Transforma el objeto json en una lista de objetos Actividad
+        """
         if i == len(self.agenda):
             return result
         else:
@@ -287,6 +289,12 @@ class Agenda:
             return self.cargar(i+1, result)
 
     def incluir(self, fecha, hora, info):
+        """
+        :param fecha:
+        :param hora:
+        :param info:
+        Incluye un nuevo evento a la lista
+        """
         self.agenda += [Actividad(len(self.agenda), fecha, hora, info)]
 
     def eliminar(self, identidad):
@@ -319,6 +327,12 @@ class Agenda:
             return self.sort_empty(i + 1, result)
 
     def cambiar_fecha(self, identidad, nueva_fecha):
+        """
+        :param identidad:
+        :param nueva_fecha:
+        :return: bool que indica si fue exitosa la operación
+        Cambia la fecha de un evento particular
+        """
         try:
             i = self.agenda.index(identidad)
             self.agenda[i].fecha = nueva_fecha
@@ -328,6 +342,12 @@ class Agenda:
             return False
 
     def cambiar_hora(self, identidad, nueva_hora):
+        """
+        :param identidad:
+        :param nueva_hora:
+        :return: bool que indica si fue exitosa la operación
+        Cambia la hora de un evento particular
+        """
         try:
             i = self.agenda.index(identidad)
             self.agenda[i].hora = nueva_hora
@@ -450,6 +470,13 @@ class Ahorcado:
             return self.pos(letra, i + 1, result)
 
     def cantidad_letras(self, i, letra, pos, result):
+        """
+        :param i:
+        :param letra:
+        :param pos:
+        :param result:
+        :return: la cantidad de veces la letra en particular aparece en self.actual
+        """
         if i >= len(pos):
             return result
         else:
@@ -478,6 +505,9 @@ class Ahorcado:
             return False
 
     def salvar(self):
+        """
+        Guarda el gane en disco
+        """
         with open("pal.json", "r") as f:
             temp = json.load(fp=f)
         temp["ganadas"] = ganadas
@@ -514,6 +544,10 @@ def get_idioma():
 
 
 def set_idioma(idioma):
+    """
+    :param idioma:
+    :return: Guarda el idioma de preferencia en disco
+    """
     with open("config.json", "r") as f:
         temp = json.load(fp=f)
     temp["idioma"] = idioma
@@ -522,9 +556,15 @@ def set_idioma(idioma):
 
 
 def get_date():
+    """
+    :return: La fecha actual en formato texto
+    """
     ahora = get_time()
     return f"{calendar.month_name[ahora.month]} {ahora.day}, {ahora.year}"
 
 
 def get_time():
+    """
+    :return: El tiempo y fecha actuales
+    """
     return datetime.datetime.now()

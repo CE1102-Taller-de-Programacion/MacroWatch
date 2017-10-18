@@ -1,6 +1,10 @@
 import json
 import datetime
 import random
+import calendar
+
+# Partidas ganadas de ahorcado
+ganadas = 0
 
 
 def confirma_pin(data):
@@ -98,6 +102,7 @@ class Contactos:
         if i >= len(self.contacts):
             return result
         elif self.contacts[i] is not None:
+            self.contacts[i].identidad = len(result)
             result += [self.contacts[i]]
             return self.sort_empty(i + 1, result)
         else:
@@ -119,49 +124,57 @@ class Contactos:
         """
         :return: lista ya ordenada de contactos
         """
-        return self.ordenar_id_aux(0, self.contacts, [])
+        return self.ordenar_id_aux(self.contacts, [])
 
-    def ordenar_id_aux(self, i, copia, result):
+    def ordenar_id_aux(self, copia, result):
         """
         :param i: int (índice)
         :param copia: lista de contactos
         :param result: lista de contactos ordenados
         """
-        if i == len(copia):
+        if not copia:
             return result
         else:
-            j = self.get_index_min(copia, 0, int(copia[0].identidad))
-            result += [self.contacts[j]]
-            return self.ordenar_id_aux(i+1, copia[0:j]+copia[j+1:len(copia)], result)
+            temp = self.get_menor_id(0, 1, copia)
+            i = copia.index(temp)
+            result += [temp]
+            if i != 1:
+                return self.ordenar_id_aux(copia[0:i]+copia[i+1:len(copia)], result)
+            else:
+                return self.ordenar_id_aux(copia[1:], result)
+
+    def get_menor_id(self, i, j, contactos):
+        if j >= len(contactos):
+            return contactos[i]
+        elif contactos[i].identidad < contactos[j].identidad:
+            return self.get_menor_id(i, j+1, contactos)
+        elif contactos[i].identidad > contactos[j].identidad:
+            return self.get_menor_id(j, j+1, contactos)
 
     def ordenar_abc(self):
-        return self.ordenar_abc_aux(0, [])
+        return self.ordenar_abc_aux(self.contacts, [])
 
-    def ordenar_abc_aux(self, i, result):
-        if i >= len(self.contacts):
+    def ordenar_abc_aux(self, copia, result):
+        if not copia:
             return result
         else:
-            result += [self.get_menor(i, self.contacts[i])]
-            return self.ordenar_abc_aux(i+1, result, self.contacts)
+            temp = self.get_menor_abc(0, 1, 0, copia)
+            i = copia.index(temp)
+            result += [temp]
+            if i != 0:
+                return self.ordenar_abc_aux(copia[0:i] + copia[i + 1:len(copia)], result)
+            else:
+                return self.ordenar_abc_aux(copia[1:], result)
 
-    def get_menor(self, i, result, copy):
-        if i >= len(copy):
-            return result
-        elif result.nombre[0] <= self.contacts[i].nombre[0]:
-            return self.get_menor(i+1, result, copy)
-        elif result.nombre[0] > self.contacts[i].nombre[0]:
-            return self.get_menor(i+1, self.contacts[i])
-
-    """
-    def get_index_min(self, temp, i, result):
-        print(i)
-        if i >= len(temp):
-            return result
-        elif int(temp[i].identidad) < result:
-            return self.get_index_min(temp, i+1, temp[i].identidad)
-        else:
-            return self.get_index_min(temp, i+1, result)
-    """
+    def get_menor_abc(self, i, j, k, contactos):
+        if j >= len(contactos):
+            return contactos[i]
+        elif contactos[i].nombre[k] < contactos[j].nombre[k]:
+            return self.get_menor_abc(i, j+1, 0, contactos)
+        elif contactos[i].nombre[k] > contactos[j].nombre[k]:
+            return self.get_menor_abc(j, j+1, 0, contactos)
+        elif contactos[i].nombre[k] == contactos[j].nombre[k]:
+            return self.get_menor_abc(i, j, k+1, contactos)
 
     def seleccionar(self, identidad):
         return self.seleccionar_aux(int(identidad), 0)
@@ -182,7 +195,7 @@ class Contactos:
         """
         try:
             with open("contactos.json", "w") as f:
-                json.dump(obj=self.lista_dictionary(len(self.contacts)-1, {}), fp=f)
+                json.dump(obj=self.lista_dictionary(0, {}), fp=f)
             return True
         except FileNotFoundError:
             return False
@@ -193,17 +206,17 @@ class Contactos:
         :param result: dictionario que será guardado en disco
         :return: result
         """
-        if i == 0:
+        if i >= len(self.contacts):
             return result
         else:
-            result[str(self.contacts[i].identidad)] = {"id": str(self.contacts[i].identidad),
+            result[i] = {"id": str(self.contacts[i].identidad),
                                                        "nombre": self.contacts[i].nombre,
                                                        "telefonos": self.contacts[i].telefonos,
                                                        "celular": self.contacts[i].celular,
                                                        "correo": self.contacts[i].correo,
                                                        "foto": self.contacts[i].foto}
 
-            return self.lista_dictionary(i-1, result)
+            return self.lista_dictionary(i+1, result)
 
 
 # Kinda done
@@ -276,9 +289,34 @@ class Agenda:
     def incluir(self, fecha, hora, info):
         self.agenda += [Actividad(len(self.agenda), fecha, hora, info)]
 
-    def eliminar(self):
-        # TODO
-        pass
+    def eliminar(self, identidad):
+        """
+        :param identidad:
+
+        Elimina la actividad correspondiente y vuelve a ordenar la lista para evitar tener espacios null
+        vacíos.
+        """
+        try:
+            self.agenda[identidad] = None
+            self.agenda = self.sort_empty(0, [])
+            return True
+
+        except KeyError:
+            return False
+
+    def sort_empty(self, i, result):
+        """
+        Sort que se encarga de remover los espacios vacíos una vez se elimina un
+        contacto.
+        """
+        if i >= len(self.agenda):
+            return result
+        elif self.agenda[i] is not None:
+            self.agenda[i].identidad = len(result)
+            result += [self.agenda[i]]
+            return self.sort_empty(i + 1, result)
+        else:
+            return self.sort_empty(i + 1, result)
 
     def cambiar_fecha(self, identidad, nueva_fecha):
         try:
@@ -304,14 +342,45 @@ class Agenda:
         """
         return self.agenda
 
+    def save(self):
+        """
+        :return: bool que indica si la operación fue exitosa
 
-# DONE
+        Guarda self.contacts a disco
+        """
+        try:
+            with open("agenda.json", "w") as f:
+                json.dump(obj=self.lista_dictionary(0, {}), fp=f)
+            return True
+        except FileNotFoundError:
+            return False
+
+    def lista_dictionary(self, i, result):
+        """
+        :param i: int índice
+        :param result: dictionario que será guardado en disco
+        :return: result
+        """
+        if i >= len(self.agenda):
+            return result
+        else:
+            result[i] = {"id": str(self.agenda[i].identidad),
+                         "fecha": self.agenda[i].fecha,
+                         "hora": self.agenda[i].hora,
+                         "info": self.agenda[i].info
+                         }
+
+            return self.lista_dictionary(i + 1, result)
+
+
 class Ahorcado:
     """
     Clase que maneja la lógica para el juego de ahorcado
     Genera la palabra a utilizar y comprueba cada vez que se le pide
     """
+
     def __init__(self, idi):
+        global ganadas
         self.idi = idi
         self.adivinadas = ""
         self.equivocadas = ""
@@ -326,6 +395,8 @@ class Ahorcado:
             i = random.randint(0, len(load["words"])-1)
             self.actual = load["words"][i]
 
+        ganadas = load["ganadas"]
+
     def get_actual(self):
         """
         :return: str, palabra uilizada en juego actual.
@@ -334,7 +405,7 @@ class Ahorcado:
 
     def get_adivinadas(self):
         """
-        :return: lista de str, letras ya adivinadas
+        :return: lista de str, letras ya adivinadas.
         """
         return self.adivinadas
 
@@ -406,6 +477,13 @@ class Ahorcado:
         else:
             return False
 
+    def salvar(self):
+        with open("pal.json", "r") as f:
+            temp = json.load(fp=f)
+        temp["ganadas"] = ganadas
+        with open("pal.json", "w") as f:
+            json.dump(obj=temp, fp=f)
+
 
 def cambiar_pin(nuevo_pin):
     """
@@ -424,6 +502,28 @@ def cambiar_pin(nuevo_pin):
             return False
     except:
         return False
+
+
+def get_idioma():
+    """
+    :return: Devuelve el idioma de preferencia del usuario
+    """
+    with open("config.json", "r") as f:
+        temp = json.load(fp=f)
+    return temp["idioma"]
+
+
+def set_idioma(idioma):
+    with open("config.json", "r") as f:
+        temp = json.load(fp=f)
+    temp["idioma"] = idioma
+    with open("config.json", "w") as f:
+        json.dump(obj=temp, fp=f)
+
+
+def get_date():
+    ahora = get_time()
+    return f"{calendar.month_name[ahora.month]} {ahora.day}, {ahora.year}"
 
 
 def get_time():
